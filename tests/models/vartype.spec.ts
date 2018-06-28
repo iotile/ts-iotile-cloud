@@ -1,0 +1,98 @@
+import * as IOTileCloudModule from "ng-iotile-cloud";
+
+describe('VarTypeTest', () => {
+  const dummyVarType: IOTileCloudModule.VarType = new IOTileCloudModule.VarType({
+    "name": "Liquid Volume",
+    "slug": "liquid-volume",
+    "available_input_units": [
+      {
+        "slug": "in--water-meter-volume--gallons",
+        "unit_full": "Gallons",
+        "unit_short": "g",
+        "m": 378,
+        "d": 100,
+        "o": 0.0
+      },
+      {
+        "slug": "in--water-meter-volume--liters",
+        "unit_full": "Liters",
+        "unit_short": "l",
+        "m": 1,
+        "d": 1,
+        "o": 0.0
+      }
+    ],
+    "available_output_units": [
+      {
+        "slug": "out--water-meter-volume--foo",
+        "unit_full": "Foo",
+        "unit_short": "g",
+        "m": 100,
+        "d": 378,
+        "o": 0.0
+      },
+      {
+        "slug": "out--water-meter-volume--bar",
+        "unit_full": "Bar",
+        "unit_short": "l",
+        "m": 1,
+        "d": 1,
+        "o": 0.0
+      }
+    ],
+    "storage_units_full": "Liters",
+    "storage_units_short": "l"
+  });
+  
+  it('check basic varType', () => {
+    let varType: IOTileCloudModule.VarType = dummyVarType;
+    expect(varType.name).toEqual('Liquid Volume');
+    expect(varType.slug).toEqual('liquid-volume');
+  });
+
+  it('check available input in varType', () => {
+    let varType: IOTileCloudModule.VarType = dummyVarType;
+    expect(varType.availableInputUnits.length).toEqual(2);
+    expect(varType.availableInputUnits[0].fullName).toEqual('Gallons');
+    expect(varType.availableInputUnits[1].fullName).toEqual('Liters');
+  });
+
+  it('check available output in varType', () => {
+    let varType: IOTileCloudModule.VarType = dummyVarType;
+    expect(varType.availableOutputUnits.length).toEqual(2);
+    expect(varType.availableOutputUnits[0].fullName).toEqual('Foo');
+    expect(varType.availableOutputUnits[1].fullName).toEqual('Bar');
+  });
+
+  it('check varTypeDictionary', () => {
+    let varType1: IOTileCloudModule.VarType = dummyVarType;
+    let varType2: IOTileCloudModule.VarType = new IOTileCloudModule.VarType({
+      "name": "Liquid Flow",
+      "slug": "liquid-flow",
+      "storage_units_full": "LPM",
+      "storage_units_short": "lpm"
+    });
+
+    expect(varType2.name).toEqual('Liquid Flow');
+    let varTypeDict: IOTileCloudModule.VarTypeDictionary = {}
+    varTypeDict[varType1.slug] = varType1;
+    varTypeDict[varType2.slug] = varType2;
+
+    expect(varTypeDict[varType1.slug].name).toEqual('Liquid Volume');
+    expect(varTypeDict[varType2.slug].name).toEqual('Liquid Flow');
+  });
+
+  it('check getInputUnitForSlug', () => {
+    let varType: IOTileCloudModule.VarType = dummyVarType;
+    let u1: IOTileCloudModule.Unit = varType.getInputUnitForSlug('in--water-meter-volume--liters');
+    expect(u1.fullName).toEqual('Liters');
+    expect(u1.shortName).toEqual('l');
+  });
+
+  it('check getOutputUnitForSlug', () => {
+    let varType: IOTileCloudModule.VarType = dummyVarType;
+    let u1: IOTileCloudModule.Unit = varType.getOutputUnitForSlug('out--water-meter-volume--foo');
+    expect(u1.fullName).toEqual('Foo');
+    expect(u1.shortName).toEqual('g');
+  });
+});

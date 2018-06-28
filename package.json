@@ -1,0 +1,100 @@
+{
+  "name": "iotile-cloud",
+  "version": "0.0.0",
+  "description": "A typescript library for interfacing with the IOTile Cloud API",
+  "main": "dist/iotile-cloud.umd.js",
+  "types": "dist/types/index.d.ts",
+  "module": "dist/iotile-cloud.es5.js",
+  "repository": "https://github.com/iotile/iotile-cloud",
+  "license": "MIT",
+  "keywords": [
+    "typescript",
+    "library",
+    "tslint",
+    "iotile",
+    "iotile-cloud",
+    "iot",
+    "axios"
+  ],
+  "scripts": {
+    "lint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "build": "tsc --module commonjs --outDir dist/lib && rollup -c rollup.config.ts && typedoc --name iotile-cloud --out dist/docs --target es5 --theme minimal --mode file src",
+    "start": "rollup -c rollup.config.ts -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:prod": "npm run lint && npm run test -- --coverage --no-cache",
+    "deploy-docs": "ts-node tools/gh-pages-publish",
+    "report-coverage": "cat ./coverage/lcov.info | coveralls"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.jest.json"
+      }
+    },
+    "transform": {
+      ".(js|ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!iotile-common)"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 30,
+        "functions": 50,
+        "lines": 50,
+        "statements": 50
+      }
+    },
+    "collectCoverage": true,
+    "mapCoverage": true
+  },
+  "engines": {
+    "node": ">=8.9"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "iotile-common": "0.0.9",
+    "typescript-logging": "^0.6.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^22.0.0",
+    "@types/node": "^9.3.0",
+    "axios-mock-adapter": "^1.15.0",
+    "cz-conventional-changelog": "^2.1.0",
+    "gh-pages": "^1.0.0",
+    "jest": "^22.0.2",
+    "lodash": "^4.17.10",
+    "lodash.camelcase": "^4.3.0",
+    "prettier": "^1.10.2",
+    "rollup": "^0.54.0",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.10.0",
+    "standard-version": "^4.0.0",
+    "ts-jest": "^22.0.0",
+    "ts-node": "^4.1.0",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.1.0",
+    "tslint-immutable": "^4.5.1",
+    "typedoc": "^0.11.1",
+    "typescript": "^2.4.1"
+  },
+  "prettier": {
+    "singleQuote": true
+  }
+}
