@@ -1,4 +1,4 @@
-import {IOTileCloud} from "ng-iotile-cloud";
+import {IOTileCloud} from "../src/cloud/iotile-cloud-serv";
 
 describe('module: iotile.cloud, service: IOTileCloudService', function () {
   let Cloud: IOTileCloud;

@@ -1,6 +1,9 @@
-import {ServerInformation, Membership} from 'ng-iotile-cloud';
+import {Membership} from './membership';
+import {ServerInformation} from './server-information';
 
 export class User {
+    public slug: string = '';
+    public tagline: string;
     public username: string;
     public name: string;
     public isStaff: boolean = false;
@@ -12,6 +15,7 @@ export class User {
     private orgRoles: {[key: string]: Membership}
 
     public constructor(data: any = {}, token?: string) {
+        this.tagline = data.tagline || '';
         this.username = data.username || "";
         this.name = data.name || "";
         this.email = data.email || "";
@@ -19,6 +23,10 @@ export class User {
         this.isStaff = data.is_staff || false;
         this.id = data.id || "";
         this.orgRoles = data.orgRoles || {};
+
+        if ('slug' in data) {
+            this.slug = data.slug;
+        }
 
         if (data.avatar) {
             this.avatarUrl = data.avatar.thumbnail;
@@ -28,7 +36,7 @@ export class User {
     }
 
     public toJson(): any {
-        let rawData = {
+        let rawData : {[key: string]: any} = {
             "username" : this.username,
             "name" : this.name,
             "email" : this.email,
@@ -45,9 +53,9 @@ export class User {
         return rawData;
       }
 
-    public static Unserialize(obj: {}) : {user: User, server: ServerInformation} {
+    public static Unserialize(obj: {[key: string]: any}) : {user: User, server: ServerInformation | undefined} {
         let user = new User(obj);
-        let server: ServerInformation;
+        let server: ServerInformation | undefined = undefined;
     
         if (obj['server']) {
           server = obj['server'];

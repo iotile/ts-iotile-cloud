@@ -1,9 +1,9 @@
 export class DataPoint {
   public timestamp: Date;
-  public rawValue: number;
-  public value: number;
-  public outValue: number;
-  public displayValue: string;
+  public rawValue?: number;
+  public value?: number;
+  public outValue?: number;
+  public displayValue?: string;
 
   constructor(data: any = {}) {
     this.timestamp = new Date(data.timestamp);

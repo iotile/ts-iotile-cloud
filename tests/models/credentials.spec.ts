@@ -1,8 +1,8 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {Credentials} from "../../src/models/credentials";
 
 describe('CredentialsTest', function () {
   it('get credentials payload', function () {
-    let cred: IOTileCloudModule.Credentials = new IOTileCloudModule.Credentials('joe', 'joe.123');
+    let cred: Credentials = new Credentials('joe', 'joe.123');
     expect(cred.getPayload()).toEqual({
         username: 'joe',
         password: 'joe.123'
@@ -10,7 +10,7 @@ describe('CredentialsTest', function () {
   });
 
   it('check credentials token', function () {
-    let cred: IOTileCloudModule.Credentials = new IOTileCloudModule.Credentials('joe', 'joe.123');
+    let cred: Credentials = new Credentials('joe', 'joe.123');
     cred.setToken('1234567890');
     expect(cred.getToken()).toEqual('1234567890');
     cred.clearToken();

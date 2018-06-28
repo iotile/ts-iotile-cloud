@@ -3,7 +3,8 @@ import {StreamDelta, DeviceDelta, Device, Stream, Project, StreamOutputUnitsDelt
         from "../models";
 import {DeltaStatus, SerializedDelta} from "../base/model-delta";
 import {DataConflictError, streamInDevice} from "./cloud-utils";
-import {endsWith} from "iotile-common";
+import {Category} from "typescript-logging";
+import {endsWith, UnknownKeyError} from "iotile-common";
 var merge = require('lodash.merge');
 
 /*
@@ -28,6 +29,7 @@ export class ProjectOverlay {
 
     constructor(deltas: (StreamDelta|DeviceDelta)[] = []) {
         this.deltaMap = {stream: {}, device: {}};
+        this.deserializerMap = {};
 
         for (let delta of deltas) {
             this.addDelta(delta);
@@ -93,22 +95,26 @@ export class ProjectOverlay {
     }
 
     public patchForStream(stream: Stream): {} {
-        if (!(stream.slug in this.deltaMap.stream)) {
-            return {};
-        }
-
-        let patch = {};
-        for (let deltaSlug in this.deltaMap.stream[stream.slug]) {
-            let delta = this.deltaMap.stream[stream.slug][deltaSlug];
-
-            if (delta.check(stream) === DeltaStatus.Conflicted) {
-                throw new DataConflictError("The same setting has also been modified in the cloud, please resync before trying to update.", "Conflict in slug: " + delta.slug + " guid: " + delta.id);
+        if (stream.slug){
+            if (!(stream.slug in this.deltaMap.stream)) {
+                return {};
             }
-
-            merge(patch, delta.getPatch(stream));
+    
+            let patch = {};
+            for (let deltaSlug in this.deltaMap.stream[stream.slug]) {
+                let delta = this.deltaMap.stream[stream.slug][deltaSlug];
+    
+                if (delta.check(stream) === DeltaStatus.Conflicted) {
+                    throw new DataConflictError("The same setting has also been modified in the cloud, please resync before trying to update.", "Conflict in slug: " + delta.slug + " guid: " + delta.id);
+                }
+    
+                merge(patch, delta.getPatch(stream));
+            }
+    
+            return patch;
+        } else {
+            throw new UnknownKeyError("Cannot patch stream with unknown slug");
         }
-
-        return patch;
     }
 
     /*
@@ -230,19 +236,21 @@ export class ProjectOverlay {
     }
 
     public applyStream(stream: Stream, markModified: boolean) {
-        let deltas = this.deltaMap.stream[stream.slug];
+        if (stream.slug){
+            let deltas = this.deltaMap.stream[stream.slug];
 
-        if (deltas == null) {
-            return;
-        }
+            if (deltas == null) {
+                return;
+            }
 
-        for (let guid in deltas) {
-            let delta = deltas[guid];
-            if (delta.check(stream) === DeltaStatus.Applies) {
-                delta.apply(stream);
+            for (let guid in deltas) {
+                let delta = deltas[guid];
+                if (delta.check(stream) === DeltaStatus.Applies) {
+                    delta.apply(stream);
 
-                if (markModified) {
-                    stream.isModified = true;
+                    if (markModified) {
+                        stream.isModified = true;
+                    }
                 }
             }
         }
@@ -293,7 +301,7 @@ export class ProjectOverlay {
         return obj;
     }
 
-    private deserialize(obj: SerializedOverlay, log?: ng.ILogService) {
+    private deserialize(obj: SerializedOverlay, log?: Category) {
         for (let slug in obj) {
             let deltas = obj[slug];
 
@@ -316,7 +324,7 @@ export class ProjectOverlay {
         }
     }
 
-    public static Deserialize(obj: SerializedOverlay, log?: ng.ILogService) : ProjectOverlay {
+    public static Deserialize(obj: SerializedOverlay, log?: Category) : ProjectOverlay {
         let overlay = new ProjectOverlay();
         
         overlay.deserialize(obj, log);

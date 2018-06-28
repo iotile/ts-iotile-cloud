@@ -1,9 +1,9 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {Device} from "../../src/models/device";
 
 describe('DeviceTest', () => {
 
   it('check basic device', () => {
-    let dev: IOTileCloudModule.Device = new IOTileCloudModule.Device({
+    let dev: Device = new Device({
         "id": 129,
         "slug": "d--0000-0000-0000-0081",
         "gid": "0000-0000-0000-0081",
@@ -16,6 +16,7 @@ describe('DeviceTest', () => {
         "lon": null,
         "created_on": "2016-12-05T21:20:53.500516Z"
     });
+
     expect(dev.id).toEqual(129);
     expect(dev.slug).toEqual('d--0000-0000-0000-0081');
   });

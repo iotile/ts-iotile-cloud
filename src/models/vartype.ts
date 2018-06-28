@@ -8,8 +8,8 @@ export class VarType {
   public name: string;
   public slug: string;
   public rawData: any;
-  public availableInputUnits: Array<Unit>;
-  public availableOutputUnits: Array<Unit>;
+  public availableInputUnits: Array<Unit> = [];
+  public availableOutputUnits: Array<Unit> = [];
 
   constructor(data: any = {}) {
     this.name = data.name;
@@ -17,22 +17,18 @@ export class VarType {
     this.rawData = data;
 
     if ("available_input_units" in data) {
-      data["available_input_units"].forEach(u => {
-        if (!this.availableInputUnits) {
-          this.availableInputUnits = [];
-        }
+      let that = this;
+      data["available_input_units"].forEach(function (u: any) {
         let unit: Unit = new Unit(u);
-        this.availableInputUnits.push(unit);
+        that.availableInputUnits.push(unit);
       });
     }
 
     if ("available_output_units" in data) {
-      data["available_output_units"].forEach(u => {
-        if (!this.availableOutputUnits) {
-          this.availableOutputUnits = [];
-        }
+      let that = this;
+      data["available_output_units"].forEach(function (u: any){
         let unit: Unit = new Unit(u);
-        this.availableOutputUnits.push(unit);
+        that.availableOutputUnits.push(unit);
       });
     }
   }
@@ -41,8 +37,8 @@ export class VarType {
     return this.rawData;
   }
 
-  public getInputUnitForSlug(slug): Unit {
-    let resultingUnit: Unit;
+  public getInputUnitForSlug(slug: string): Unit | undefined {
+    let resultingUnit;
 
     this.availableInputUnits.forEach(u => {
       if (u.slug === slug) {
@@ -53,8 +49,8 @@ export class VarType {
     return resultingUnit;
   }
 
-  public getOutputUnitForSlug(slug): Unit {
-    let resultingUnit: Unit;
+  public getOutputUnitForSlug(slug: string): Unit | undefined {
+    let resultingUnit;
 
     this.availableOutputUnits.forEach(u => {
       if (u.slug === slug) {

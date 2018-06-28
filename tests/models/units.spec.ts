@@ -1,6 +1,6 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {Unit, DeviceUnitTypeDictionary} from "../../src/models/unit";
 
-const inputUnit: IOTileCloudModule.Unit = new IOTileCloudModule.Unit({
+const inputUnit: Unit = new Unit({
   "slug": "in--water-meter-volume--gallons",
   "unit_full": "Gallons",
   "unit_short": "g",
@@ -9,7 +9,7 @@ const inputUnit: IOTileCloudModule.Unit = new IOTileCloudModule.Unit({
   "o": 0.0
 });
 
-const outputUnit: IOTileCloudModule.Unit = new IOTileCloudModule.Unit({
+const outputUnit: Unit = new Unit({
   "slug": "out--water-meter-volume--liters",
   "unit_full": "Liters",
   "unit_short": "l",
@@ -34,7 +34,7 @@ const outputUnit: IOTileCloudModule.Unit = new IOTileCloudModule.Unit({
 describe('UnitsTest', () => {
 
   it('check basic inputUnit', () => {
-    let u: IOTileCloudModule.Unit = inputUnit;
+    let u: Unit = inputUnit;
     expect(u.slug).toEqual('in--water-meter-volume--gallons');
     expect(u.fullName).toEqual('Gallons');
     expect(u.shortName).toEqual('g');
@@ -46,7 +46,7 @@ describe('UnitsTest', () => {
   });
 
   it('check basic outputUnit', () => {
-    let u: IOTileCloudModule.Unit = outputUnit;
+    let u: Unit = outputUnit;
     expect(u.slug).toEqual('out--water-meter-volume--liters');
     expect(u.fullName).toEqual('Liters');
     expect(u.shortName).toEqual('l');
@@ -57,12 +57,12 @@ describe('UnitsTest', () => {
   });
 
   it('check output derivedUnits', () => {
-    let u: IOTileCloudModule.Unit = outputUnit;
+    let u: Unit = outputUnit;
 
     expect(u.deriveUnitTypes()).toEqual(['rate']);
     expect(u.deriveUnitsByType('rate')).toEqual(['lph', 'lpm']);
 
-    let derivedUnits: IOTileCloudModule.DeviceUnitTypeDictionary = u.derivedUnits;
+    let derivedUnits: DeviceUnitTypeDictionary = u.derivedUnits;
     expect(derivedUnits['rate']['lph'].m).toEqual(6);
     expect(derivedUnits['rate']['lph'].d).toEqual(1);
     expect(derivedUnits['rate']['lpm'].d).toEqual(10);
@@ -70,8 +70,8 @@ describe('UnitsTest', () => {
   });
 
   it('check setFromUnit', () => {
-    let srcUnit: IOTileCloudModule.Unit = outputUnit;
-    let dstUnit: IOTileCloudModule.Unit = new IOTileCloudModule.Unit();
+    let srcUnit: Unit = outputUnit;
+    let dstUnit: Unit = new Unit();
     dstUnit.setFromUnit(srcUnit);
     expect(dstUnit.slug).toEqual('out--water-meter-volume--liters');
     expect(dstUnit.fullName).toEqual('Liters');

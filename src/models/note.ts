@@ -16,8 +16,8 @@ export class Note {
   public timestamp: string;
   public note: string;
   public type: string = 'ui';
-  public userInfo: NoteUserInfo;
-  public attachment: NoteAttachment;
+  public userInfo?: NoteUserInfo;
+  public attachment?: NoteAttachment;
 
   constructor(data: any = {}) {
     this.target = data.target;

@@ -24,11 +24,28 @@ export class Unit {
   public fullName: string;
   public shortName: string;
   public slug: string;
-  public decimalPlaces: number;
-  public derivedUnits: DeviceUnitTypeDictionary;
+  public decimalPlaces?: number;
+  public derivedUnits?: DeviceUnitTypeDictionary;
 
   constructor(data: any = {}) {
-    this.initFromJSON(data);
+    this.mdo = new Mdo(data);
+    this.fullName = data.unit_full;
+    this.shortName = data.unit_short;
+    this.slug = data.slug;
+    if ('decimal_places' in data) {
+      this.decimalPlaces = data.decimal_places;
+    }
+
+    if ('derived_units' in data) {
+      this.derivedUnits = {};
+      for (let key in data['derived_units']) {
+        this.derivedUnits[key] = {};
+
+        for (let name in data['derived_units'][key]) {
+          this.derivedUnits[key][name] = new Mdo(data['derived_units'][key][name]);
+        }
+      }
+    }
   }
 
   private initFromJSON(data: any) {
@@ -88,9 +105,11 @@ export class Unit {
   public deriveUnitTypes(): string[] {
     var keySet: string[] = [];
 
-    for (var prop in this.derivedUnits) {
-      if (this.derivedUnits.hasOwnProperty(prop)) {
-        keySet.push(prop);
+    if (this.derivedUnits){
+      for (var prop in this.derivedUnits) {
+        if (this.derivedUnits.hasOwnProperty(prop)) {
+          keySet.push(prop);
+        }
       }
     }
 
@@ -100,9 +119,11 @@ export class Unit {
   public deriveUnitsByType(type: string): string[] {
     var keySet: string[] = [];
 
-    for (var prop in this.derivedUnits[type]) {
-      if (this.derivedUnits[type].hasOwnProperty(prop)) {
-        keySet.push(prop);
+    if (this.derivedUnits){
+      for (var prop in this.derivedUnits[type]) {
+        if (this.derivedUnits[type].hasOwnProperty(prop)) {
+          keySet.push(prop);
+        }
       }
     }
 

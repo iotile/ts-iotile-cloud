@@ -1,7 +1,7 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {SensorGraph} from "../../src/models/sensorgraph";
 
 describe('SensorGraphTest', () => {
-  const dummySg1 = new IOTileCloudModule.SensorGraph({
+  const dummySg1 = new SensorGraph({
     "id": 2,
     "name": "Water Meter",
     "slug": "water-meter-v0-1-0",
@@ -171,7 +171,7 @@ describe('SensorGraphTest', () => {
     "version": "v0.1.0",
     "created_on": "2017-03-10T04:16:03.061729Z"
   });
-const dummySg2 = new IOTileCloudModule.SensorGraph({
+const dummySg2 = new SensorGraph({
     "id": 2,
     "name": "Water Meter",
     "slug": "water-meter-v0-1-0",
@@ -191,7 +191,7 @@ const dummySg2 = new IOTileCloudModule.SensorGraph({
     "version": "v0.1.0",
     "created_on": "2017-03-10T04:16:03.061729Z"
   });
-const dummySg3 = new IOTileCloudModule.SensorGraph({
+const dummySg3 = new SensorGraph({
     "id": 2,
     "name": "Water Meter",
     "slug": "water-meter-v0-1-0",
@@ -204,7 +204,7 @@ const dummySg3 = new IOTileCloudModule.SensorGraph({
     "created_on": "2017-03-10T04:16:03.061729Z"
   });
 
-  const gatewaySG = new IOTileCloudModule.SensorGraph({
+  const gatewaySG = new SensorGraph({
       "id": 13,
       "name": "Gateway",
       "slug": "gateway-v1-0-0",
@@ -228,7 +228,7 @@ const dummySg3 = new IOTileCloudModule.SensorGraph({
   });
 
   it('check SensorGraph basics', () => {
-    let sg: IOTileCloudModule.SensorGraph = dummySg1;
+    let sg: SensorGraph = dummySg1;
     expect(sg).toBeTruthy();
     expect(sg.name).toEqual('Water Meter');
     expect(sg.org).toEqual('arch-systems');
@@ -236,31 +236,31 @@ const dummySg3 = new IOTileCloudModule.SensorGraph({
   });
 
   it('check SensorGraph uiExtra', () => {
-    let sg: IOTileCloudModule.SensorGraph = dummySg1;
+    let sg: SensorGraph = dummySg1;
     expect(sg.uiExtra).toBeDefined();
     expect(sg.getUiExtra()).toBeDefined();
     expect(sg.getIoInfo()).toBeDefined();
   });
 
   it('check SensorGraph deviceSettings Controller1', () => {
-    let sg: IOTileCloudModule.SensorGraph = dummySg1;
+    let sg: SensorGraph = dummySg1;
     expect(sg.getSettingsTemplate('5001')).toEqual('water-meter-settings');
     expect(sg.getSettingsController('5001')).toEqual('waterMeterSettingsCtrl');
   });
   it('check SensorGraph deviceSettings Controller2', () => {
-    let sg2: IOTileCloudModule.SensorGraph = dummySg2;
+    let sg2: SensorGraph = dummySg2;
     expect(sg2.getSettingsTemplate('5001')).toEqual('water-meter-settings');
     expect(sg2.getSettingsController('5001')).toEqual('waterMeterSettingsCtrl');
     expect(sg2.getUiExtra()).toBeDefined();
   });
   it('check SensorGraph deviceSettings Controller3', () => {
-    let sg3: IOTileCloudModule.SensorGraph = dummySg3;
+    let sg3: SensorGraph = dummySg3;
     expect(sg3.getSettingsTemplate('5001')).toEqual('default-settings');
     expect(sg3.getSettingsController('5001')).toEqual('defaultSettingsCtrl');
     expect(sg3.getUiExtra()).toBeDefined();
   });
   it('check SensorGraph with available templates', () => {
-    let sg: IOTileCloudModule.SensorGraph = dummySg1;
+    let sg: SensorGraph = dummySg1;
     expect(sg.displayWidgetTemplates.length).toEqual(4);
     let widget0 = sg.displayWidgetTemplates[0];
     expect(widget0.show).toEqual(false);
@@ -269,7 +269,7 @@ const dummySg3 = new IOTileCloudModule.SensorGraph({
     expect(widget3.show).toEqual(true);
   });
   it('check SensorGraph without available templates', () => {
-    let sg2: IOTileCloudModule.SensorGraph = dummySg2;
+    let sg2: SensorGraph = dummySg2;
     expect(sg2.displayWidgetTemplates.length).toEqual(0);
   });
 

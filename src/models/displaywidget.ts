@@ -1,9 +1,9 @@
 export class RPCArgs {
-  public addr: number;
-  public rpcId: number;
-  public callFmt: string;
-  public respFmt: string;
-  public args: (string|number)[];
+  public addr?: number;
+  public rpcId?: number | null;
+  public callFmt?: string;
+  public respFmt?: string;
+  public args?: (string|number)[];
   public timeout?: number;
 
   constructor(data: any = {}){
@@ -33,8 +33,8 @@ export class StatefulRPCArgs extends RPCArgs {
 }
 
 export class StatefulSwitchArgs {
-  public currentState: boolean;
-  public transitionStates: string[];
+  public currentState: boolean = false;
+  public transitionStates: string[] = [];
   public rpcs: RPCArgs[] = [];
 
   constructor(data: any = {}){
@@ -53,7 +53,7 @@ export class DisplayWidget {
   public label: string;
   public lid: string;
   public type: string;
-  public args: RPCArgs | StatefulRPCArgs| StatefulSwitchArgs;
+  public args: RPCArgs | StatefulRPCArgs| StatefulSwitchArgs | null;
   public varType: string;
   public show: boolean;
 

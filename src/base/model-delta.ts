@@ -37,7 +37,7 @@ export abstract class ModelDelta<T> {
     public abstract getPatch(model: T): {[key: string]: any};
 
     //Update this model locally
-    public abstract apply(model: T);
+    public abstract apply(model: T): any;
     protected abstract serializeArguments() : {};
 
     public serialize(): SerializedDelta {

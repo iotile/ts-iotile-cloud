@@ -1,7 +1,7 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {Variable} from "../../src/models/variable";
 
 describe('VariableTest', () => {
-  const dummyVariable: IOTileCloudModule.Variable = new IOTileCloudModule.Variable({
+  const dummyVariable: Variable = new Variable({
     "id": "e83cdfaf-144e-478a-92b2-b05a52bea2ae",
     "name": "IO 1",
     "lid": 20481,
@@ -51,7 +51,7 @@ describe('VariableTest', () => {
   });
   
   it('check basic variable', () => {
-    let v: IOTileCloudModule.Variable = dummyVariable;
+    let v: Variable = dummyVariable;
     expect(v.id).toEqual('e83cdfaf-144e-478a-92b2-b05a52bea2ae');
     expect(v.name).toEqual('IO 1');
     expect(v.slug).toEqual('v--0000-0001--5001');
@@ -65,14 +65,14 @@ describe('VariableTest', () => {
   });
 
   it('check variable MDO', () => {
-    let v: IOTileCloudModule.Variable = dummyVariable;
+    let v: Variable = dummyVariable;
     expect(v.mdo.m).toEqual(1);
     expect(v.mdo.d).toEqual(10);
     expect(v.mdo.o).toEqual(5.0);
   });
 
   it('check variable units', () => {
-    let v: IOTileCloudModule.Variable = dummyVariable;
+    let v: Variable = dummyVariable;
     expect(v.inputUnit).toBeDefined();
     expect(v.inputUnit.fullName).toEqual('Gallons');
     expect(v.inputUnit.shortName).toEqual('g');
@@ -91,7 +91,7 @@ describe('VariableTest', () => {
   });
 
   it('check variable.getHexLid', () => {
-    let v: IOTileCloudModule.Variable = dummyVariable;
+    let v: Variable = dummyVariable;
     expect(v.getHexLid()).toEqual('5001');
   });
 });

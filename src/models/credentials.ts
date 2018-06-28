@@ -1,14 +1,12 @@
 export class Credentials {
   public username: string;
   public password: string;
-  private token: string;
+  private token: null | string;
 
-  constructor (
-    username: string,
-    password: string
-  ) {
+  constructor (username: string, password: string) {
       this.username = username;
       this.password = password;
+      this.token = null;
   }
 
   public getPayload(): {} {
@@ -22,7 +20,7 @@ export class Credentials {
     this.token = token;
   }
 
-  public getToken(): string {
+  public getToken(): string | null {
     return this.token;
   }
 

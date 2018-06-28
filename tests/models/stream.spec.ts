@@ -1,7 +1,7 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {Stream} from "../../src/models/stream";
 
 describe('StreamTest', () => {
-  const dummyStream0 = new IOTileCloudModule.Stream({
+  const dummyStream0 = new Stream({
     project: "p--0000-0010",
     device: "d--0000-0000-0000-00ae",
     variable: "v--0000-0010--5001",
@@ -15,7 +15,6 @@ describe('StreamTest', () => {
       "d": 100,
       "o": 0.0
     },
-    output_unit: null,
     multiplication_factor: 1,
     division_factor: 10,
     offset: 5.0,
@@ -25,10 +24,9 @@ describe('StreamTest', () => {
     slug: "s--0000-0010--0000-0000-0000-00ae--5001"
   });
 
-  const dummyStream1 = new IOTileCloudModule.Stream({
+  const dummyStream1 = new Stream({
     project: "p--0000-0010",
     device: "d--0000-0000-0000-00ae",
-    variable: null,
     raw_value_format: "<L",
     mdo_type: "S",
     input_unit: {
@@ -39,7 +37,6 @@ describe('StreamTest', () => {
       "d": 100,
       "o": 0.0
     },
-    output_unit: null,
     multiplication_factor: 1,
     division_factor: 10,
     offset: 5.0,
@@ -50,7 +47,8 @@ describe('StreamTest', () => {
   });
   
   it('check Stream construction', () => {
-    let stream: IOTileCloudModule.Stream = dummyStream0;
+    let stream: Stream = dummyStream0; 
+    
     expect(stream).toBeTruthy();
     expect(stream.variable).toEqual('v--0000-0010--5001');
     expect(stream.device).toEqual('d--0000-0000-0000-00ae');
@@ -65,14 +63,14 @@ describe('StreamTest', () => {
   });
 
   it('check getLocalVarId()', () => {
-    let stream: IOTileCloudModule.Stream = dummyStream0;
+    let stream: Stream = dummyStream0;
     expect(stream.getLocalVarId()).toEqual('5001');
 
     expect(dummyStream1.getLocalVarId()).toEqual('');
   });
 
   it('should patch json object with changes', () => {
-    let stream = new IOTileCloudModule.Stream(dummyStream0.toJson());
+    let stream = new Stream(dummyStream0.toJson());
 
     stream.dataLabel = 'test label';
     stream.mdoType = 'X';

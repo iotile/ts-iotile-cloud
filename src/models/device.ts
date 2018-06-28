@@ -5,8 +5,8 @@ export class Device {
   public slug: string;
   public gid: string;
   public label: string;
-  public lat: string;
-  public lng: string;
+  public lat: string | null;
+  public lng: string| null;
   public template: string;
   public rawData: any;
   public project: string;

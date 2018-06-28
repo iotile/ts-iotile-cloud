@@ -1,7 +1,10 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {Project} from "../../src/models/project";
+import {Device} from "../../src/models/device";
+import {Stream} from "../../src/models/stream";
+import {Variable} from "../../src/models/variable";
 
 describe('ProjectTest', () => {
-  const dummyProject: IOTileCloudModule.Project = new IOTileCloudModule.Project({
+  const dummyProject: Project = new Project({
     "id": "84e3869d-1fdb-4203-9b69-18b417e2b0e0",
     "name": "My Project",
     "slug": "p--0000-0012",
@@ -21,7 +24,7 @@ describe('ProjectTest', () => {
   });
   
   it('check project fields', () => {
-    let proj: IOTileCloudModule.Project = dummyProject;
+    let proj: Project = dummyProject;
     expect(proj.id).toEqual('84e3869d-1fdb-4203-9b69-18b417e2b0e0');
     expect(proj.gid).toEqual('0000-0012');
     expect(proj.name).toEqual('My Project');
@@ -29,7 +32,7 @@ describe('ProjectTest', () => {
   });
 
   it('check default page template', () => {
-    let proj: IOTileCloudModule.Project = new IOTileCloudModule.Project({
+    let proj: Project = new Project({
       "id": "84e3869d-1fdb-4203-9b69-18b417e2b0e0",
       "pages": [],
       "page_templates": []
@@ -38,15 +41,15 @@ describe('ProjectTest', () => {
   });
 
   it('check project devices', () => {
-    let proj: IOTileCloudModule.Project = dummyProject;
-    let devices: Array<IOTileCloudModule.Device> = [];
-    let device: IOTileCloudModule.Device = new IOTileCloudModule.Device({
+    let proj: Project = dummyProject;
+    let devices: Array<Device> = [];
+    let device: Device = new Device({
       "id": 129,
       "slug": "d--0000-0000-0000-0081",
       "gid": "0000-0000-0000-0081"
     });
     devices.push(device);
-    device = new IOTileCloudModule.Device({
+    device = new Device({
       "id": 130,
       "slug": "d--0000-0000-0000-0082",
       "gid": "0000-0000-0000-0082"
@@ -59,9 +62,9 @@ describe('ProjectTest', () => {
   });
 
   it('check project streams', () => {
-    let proj: IOTileCloudModule.Project = dummyProject;
-    let streams: Array<IOTileCloudModule.Stream> = [];
-    let stream: IOTileCloudModule.Stream = new IOTileCloudModule.Stream({
+    let proj: Project = dummyProject;
+    let streams: Array<Stream> = [];
+    let stream: Stream = new Stream({
       "project": "p--0000-0001",
       "device": "d--0000-0000-0000-0081",
       "variable": "v--0000-0000--5c00",
@@ -75,7 +78,7 @@ describe('ProjectTest', () => {
       "old_id": "0000-0000040D-5c00"
     });
     streams.push(stream);
-    stream = new IOTileCloudModule.Stream({
+    stream = new Stream({
       "project": "p--0000-0001",
       "device": "d--0000-0000-0000-0081",
       "variable": "v--0000-0000--5800",
@@ -96,14 +99,14 @@ describe('ProjectTest', () => {
   });
 
   it('check project variables', () => {
-    let proj: IOTileCloudModule.Project = dummyProject;
-    let variables: Array<IOTileCloudModule.Variable> = [];
-    let v: IOTileCloudModule.Variable = new IOTileCloudModule.Variable({
+    let proj: Project = dummyProject;
+    let variables: Array<Variable> = [];
+    let v: Variable = new Variable({
       "id": '5001',
       "slug": "v--0000-0001--5001"
     });
     variables.push(v);
-    v = new IOTileCloudModule.Variable({
+    v = new Variable({
       "id": '5002',
       "slug": "v--0000-0001--5002"
     });

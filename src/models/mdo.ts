@@ -21,7 +21,7 @@ export class Mdo {
   public m: number;
   public d: number;
   public o: number;
-  public label: string;
+  public label?: string;
 
   constructor(data: any = {}) {
     this.m = data.multiplication_factor || data.m || 1;
@@ -40,7 +40,7 @@ export class Mdo {
     return true;
   }
 
-  public addToObject(obj: {}, longNames: boolean) {
+  public addToObject(obj: {[key: string]: any}, longNames: boolean) {
     if (longNames) {
       obj['offset'] = this.o;
       obj['multiplication_factor'] = this.m;

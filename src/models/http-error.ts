@@ -7,8 +7,8 @@ export class HttpError {
   private nonFieldErrors: Array<string>;
   public status: number;
   private statusText: string;
-  private method: string;
-  private url: string;
+  private method?: string;
+  private url?: string;
   private raw: any;
 
   constructor(resp: any) {
@@ -29,14 +29,15 @@ export class HttpError {
         } else if (name === 'message' || name === 'detail') {
           this.nonFieldErrors.push(data.data[name]);
         } else if (name === 'non_field_errors') {
-          data.data[name].forEach(err => {
-            if (!this.nonFieldErrors) { this.nonFieldErrors = []; }
-            this.nonFieldErrors.push(err);
+          let that = this;
+          data.data[name].forEach(function (err: any) {
+            if (!that.nonFieldErrors) { that.nonFieldErrors = []; }
+            that.nonFieldErrors.push(err);
           });
         } else {
           let msg: string = '';
           if (data.data[name] instanceof Array) {
-            data.data[name].forEach(err => {
+            data.data[name].forEach( function (err: any){
               msg += err;
             });
           } else {

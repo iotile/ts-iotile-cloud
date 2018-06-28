@@ -2,7 +2,7 @@ export class OrgTemplate {
   public id: number;
   public name: string;
   public slug: string;
-  public version: string;
+  public version?: string;
   public createdOn: Date;
   public extraData: any;
 

@@ -1,9 +1,9 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {DataPoint} from "../../src/models/datapoint";
 
 describe('DataPointTest', () => {
 
   it('check old scheme', () => {
-    let point: IOTileCloudModule.DataPoint = new IOTileCloudModule.DataPoint({
+    let point: DataPoint = new DataPoint({
         "type": "Num",
         "timestamp": "2016-09-13T20:29:13.825000Z",
         "int_value": 268205,
@@ -19,7 +19,7 @@ describe('DataPointTest', () => {
   });
 
   it('check new scheme', () => {
-    let point: IOTileCloudModule.DataPoint = new IOTileCloudModule.DataPoint({
+    let point: DataPoint = new DataPoint({
         "type": "ITR",
         "timestamp": "2016-09-13T20:29:13.825000Z",
         "int_value": 268205,

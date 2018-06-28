@@ -2,7 +2,8 @@
  * Mock data for two projects that can be used to test the IOTile Companion App.
  */
 
-import { IOTileCloud, Stream, Device, Project, Variable, SensorGraph, VarType, ProjectTemplate }from "ng-iotile-cloud";
+import { IOTileCloud, Stream, Device, Project, Variable, SensorGraph, VarType, ProjectTemplate }
+    from "../../src";
 import {ArgumentError, delay} from "iotile-common";
 let clonedeep = require("lodash.clonedeep");
 let MockAdapter = require("axios-mock-adapter");

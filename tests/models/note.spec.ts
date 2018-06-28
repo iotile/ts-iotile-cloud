@@ -1,6 +1,6 @@
 'use strict';
 
-import { Note } from '../../src/models';
+import {Note} from '../../src/models/note';
 
 describe('NoteTest', () => {
 

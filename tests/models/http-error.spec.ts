@@ -1,9 +1,9 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {HttpError} from "../../src/models/http-error";
 
 describe('HttpErrorTest', () => {
 
   it('check Bad Request Error', () => {
-    let err: IOTileCloudModule.HttpError = new IOTileCloudModule.HttpError({
+    let err: HttpError = new HttpError({
     "config":
         {"transformRequest":{}, 
         "transformResponse":{},
@@ -104,7 +104,7 @@ describe('HttpErrorTest', () => {
                   }
               }
           };
-    let err: IOTileCloudModule.HttpError = new IOTileCloudModule.HttpError(raw);
+    let err: HttpError = new HttpError(raw);
     expect(err.status).toEqual(504);
     expect(err.shortUserErrorMsg()).toEqual('Error! GATEWAY_TIMEOUT');
     expect(err.longUserErrorMsg()).toEqual('Error 504! GATEWAY_TIMEOUT');
@@ -167,7 +167,7 @@ describe('HttpErrorTest', () => {
                 }
               };
 
-    let err: IOTileCloudModule.HttpError = new IOTileCloudModule.HttpError(raw);
+    let err: HttpError = new HttpError(raw);
     expect(err.status).toEqual(400);
     expect(err.shortUserErrorMsg()).toEqual('Error! Unable to log in with provided credentials.');
     expect(err.longUserErrorMsg()).toEqual('Error 400! Bad Request: Unable to log in with provided credentials.');
@@ -217,7 +217,7 @@ describe('HttpErrorTest', () => {
                       }
                   }
               };
-    let err: IOTileCloudModule.HttpError = new IOTileCloudModule.HttpError(raw);
+    let err: HttpError = new HttpError(raw);
     expect(err.status).toEqual(400);
     expect(err.shortUserErrorMsg()).toEqual('Error! Account could not be created with received data.');
     expect(err.longUserErrorMsg()).toEqual('Error 400! Bad Request: Account could not be created with received data.');
@@ -234,7 +234,7 @@ describe('HttpErrorTest', () => {
         }
       };
 
-    let err: IOTileCloudModule.HttpError = new IOTileCloudModule.HttpError(raw);
+    let err: HttpError = new HttpError(raw);
     expect(err.shortUserErrorMsg()).toEqual('Error! ( foo: Some Text. )');
     expect(err.longUserErrorMsg()).toEqual('Error 400! Bad Request: ( foo: Some Text. )');
     expect(err.extraInfo()).toEqual('Error 400! Bad Request: ( foo: Some Text. )');
@@ -248,7 +248,7 @@ describe('HttpErrorTest', () => {
           "statusText":"Bad Request"}
           };
 
-    let err: IOTileCloudModule.HttpError = new IOTileCloudModule.HttpError(raw);
+    let err: HttpError = new HttpError(raw);
     expect(err.shortUserErrorMsg()).toEqual('Error! No Object');
     expect(err.longUserErrorMsg()).toEqual('Error 400! Bad Request: No Object');
     expect(err.extraInfo()).toEqual('Error 400! Bad Request: No Object');
@@ -256,7 +256,7 @@ describe('HttpErrorTest', () => {
 
   it('Check Unknown Error', () => {
     let raw: any = { 'foo': 'bar' };
-    let err: IOTileCloudModule.HttpError = new IOTileCloudModule.HttpError(raw);
+    let err: HttpError = new HttpError(raw);
     expect(err.status).toEqual(-1);
     expect(err.shortUserErrorMsg()).toEqual('Error! Could not reach iotile.cloud.  Check your internet connection.');
     expect(err.longUserErrorMsg()).toEqual('Error -1! Unknown Issue: Could not reach iotile.cloud.  Check your internet connection.');

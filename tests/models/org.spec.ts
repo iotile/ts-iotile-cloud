@@ -1,9 +1,9 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {Org} from "../../src/models/org";
 
 describe('OrgTest', () => {
 
   it('check basic device', () => {
-    let org: IOTileCloudModule.Org = new IOTileCloudModule.Org({
+    let org: Org = new Org({
         "id": "9e46d50b-53b3-43ad-9725-06994e1086a3",
         "name": "My Org",
         "slug": "my-org",

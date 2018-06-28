@@ -12,10 +12,10 @@ export class Variable {
   public sysVar: boolean;
   public about: string;
   public mdo: Mdo;
-  public inputUnit: Unit;
-  public outputUnit: Unit;
+  public inputUnit?: Unit;
+  public outputUnit?: Unit;
   public decimalPlaces: number;
-  public type;
+  public type: any;
   public rawData: any;
   public project: string;
 

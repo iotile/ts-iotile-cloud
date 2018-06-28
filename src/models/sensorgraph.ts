@@ -1,5 +1,4 @@
 import {DisplayWidget} from "./displaywidget";
-import angular = require("angular");
 
 export interface VariableTemplate {
   id: number,
@@ -60,9 +59,10 @@ export class SensorGraph {
       };
     }
     if ("display_widget_templates" in data) {
-      data["display_widget_templates"].forEach(d => {
+      let that = this;
+      data["display_widget_templates"].forEach(function (d: any) {
         let widget: DisplayWidget = new DisplayWidget(d);
-        this.displayWidgetTemplates.push(widget);
+        that.displayWidgetTemplates.push(widget);
       });
     }
   }
@@ -108,26 +108,26 @@ export class SensorGraph {
     return streams;
   }
 
-  private getIoInfoParameter(lid, name): string {
+  private getIoInfoParameter(lid: string, name: string): string {
 
     let ioInfo: any = this.getIoInfo();
     // 1. Check if there is an ioInfo.map and if so, if there is
     //    data for the given LID
     if (ioInfo) {
-      if (angular.isDefined(ioInfo.map[lid][name])) {
+      if (ioInfo.map[lid][name]) {
         return ioInfo.map[lid][name];
       }
     } else {
       // 2. Look for a global value for that parameter name
       let uiExtra: any = this.getUiExtra();
-      if (angular.isDefined(uiExtra[name])) {
+      if (uiExtra[name]) {
         return uiExtra[name];
       }
     }  
     return '';
   }
 
-  public getSettingsController(lid): string {
+  public getSettingsController(lid: string): string {
 
     let controller = this.getIoInfoParameter(lid, 'settingsController');
     if (controller !== '') {
@@ -136,7 +136,7 @@ export class SensorGraph {
     return 'defaultSettingsCtrl';
   }
 
-  public getSettingsTemplate(lid): string {
+  public getSettingsTemplate(lid: string): string {
 
     let template = this.getIoInfoParameter(lid, 'settingsTemplate');
     if (template !== '') {

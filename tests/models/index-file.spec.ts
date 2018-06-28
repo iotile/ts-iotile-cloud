@@ -1,6 +1,6 @@
 'use strict';
 
-import { IndexFile } from '../../src/models';
+import { IndexFile } from '../../src/models/index-file';
 
 describe('IndexFileTest', () => {
 

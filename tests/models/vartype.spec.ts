@@ -1,7 +1,8 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {VarType, VarTypeDictionary} from "../../src/models/vartype";
+import {Unit} from "../../src/models/unit";
 
 describe('VarTypeTest', () => {
-  const dummyVarType: IOTileCloudModule.VarType = new IOTileCloudModule.VarType({
+  const dummyVarType: VarType = new VarType({
     "name": "Liquid Volume",
     "slug": "liquid-volume",
     "available_input_units": [
@@ -45,28 +46,28 @@ describe('VarTypeTest', () => {
   });
   
   it('check basic varType', () => {
-    let varType: IOTileCloudModule.VarType = dummyVarType;
+    let varType: VarType = dummyVarType;
     expect(varType.name).toEqual('Liquid Volume');
     expect(varType.slug).toEqual('liquid-volume');
   });
 
   it('check available input in varType', () => {
-    let varType: IOTileCloudModule.VarType = dummyVarType;
+    let varType: VarType = dummyVarType;
     expect(varType.availableInputUnits.length).toEqual(2);
     expect(varType.availableInputUnits[0].fullName).toEqual('Gallons');
     expect(varType.availableInputUnits[1].fullName).toEqual('Liters');
   });
 
   it('check available output in varType', () => {
-    let varType: IOTileCloudModule.VarType = dummyVarType;
+    let varType: VarType = dummyVarType;
     expect(varType.availableOutputUnits.length).toEqual(2);
     expect(varType.availableOutputUnits[0].fullName).toEqual('Foo');
     expect(varType.availableOutputUnits[1].fullName).toEqual('Bar');
   });
 
   it('check varTypeDictionary', () => {
-    let varType1: IOTileCloudModule.VarType = dummyVarType;
-    let varType2: IOTileCloudModule.VarType = new IOTileCloudModule.VarType({
+    let varType1: VarType = dummyVarType;
+    let varType2: VarType = new VarType({
       "name": "Liquid Flow",
       "slug": "liquid-flow",
       "storage_units_full": "LPM",
@@ -74,7 +75,7 @@ describe('VarTypeTest', () => {
     });
 
     expect(varType2.name).toEqual('Liquid Flow');
-    let varTypeDict: IOTileCloudModule.VarTypeDictionary = {}
+    let varTypeDict: VarTypeDictionary = {}
     varTypeDict[varType1.slug] = varType1;
     varTypeDict[varType2.slug] = varType2;
 
@@ -83,15 +84,15 @@ describe('VarTypeTest', () => {
   });
 
   it('check getInputUnitForSlug', () => {
-    let varType: IOTileCloudModule.VarType = dummyVarType;
-    let u1: IOTileCloudModule.Unit = varType.getInputUnitForSlug('in--water-meter-volume--liters');
+    let varType: VarType = dummyVarType;
+    let u1: Unit = varType.getInputUnitForSlug('in--water-meter-volume--liters');
     expect(u1.fullName).toEqual('Liters');
     expect(u1.shortName).toEqual('l');
   });
 
   it('check getOutputUnitForSlug', () => {
-    let varType: IOTileCloudModule.VarType = dummyVarType;
-    let u1: IOTileCloudModule.Unit = varType.getOutputUnitForSlug('out--water-meter-volume--foo');
+    let varType: VarType = dummyVarType;
+    let u1: Unit = varType.getOutputUnitForSlug('out--water-meter-volume--foo');
     expect(u1.fullName).toEqual('Foo');
     expect(u1.shortName).toEqual('g');
   });

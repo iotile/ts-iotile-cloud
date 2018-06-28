@@ -1,9 +1,9 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {Stats} from "../../src/models/stats";
 
 describe('StatsTest', () => {
 
   it('check that we can create Stats', () => {
-    let stats: IOTileCloudModule.Stats = new IOTileCloudModule.Stats({
+    let stats: Stats = new Stats({
       "interval_seconds": 4152106.818,
       "start": "2016-09-13T19:21:27.025000Z",
       "count": 3428,
@@ -20,7 +20,7 @@ describe('StatsTest', () => {
   });
 
   it('check Stream construction', () => {
-    let stats: IOTileCloudModule.Stats = new IOTileCloudModule.Stats({
+    let stats: Stats = new Stats({
       "interval_seconds": 4152106.818,
       "start": "2016-09-13T19:21:27.025000Z",
       "count": 3428,

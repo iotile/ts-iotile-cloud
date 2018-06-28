@@ -1,6 +1,6 @@
 'use strict';
 
-import { GeneratedReport, ReportPostPayoad } from '../../src/models';
+import { GeneratedReport, ReportPostPayoad } from '../../src/models/generated-report';
 
 describe('GeneratedGeneratedReport', () => {
 

@@ -1,8 +1,8 @@
 export class Org {
   public slug: string;
   public name: string;
-  public thumbnailUrl: string;
-  public tinyUrl: string;
+  public thumbnailUrl?: string;
+  public tinyUrl?: string;
   public rawData: any;
 
   constructor(data: any = {}) {

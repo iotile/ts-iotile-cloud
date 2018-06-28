@@ -6,13 +6,13 @@ export interface MemberDictionary {
 }
 
 export class Member {
-  public user: User;
-  public createdOn: Date;
-  public isActive: boolean;
-  public permissions: Permissions;
+  public user?: User;
+  public createdOn?: Date;
+  public isActive?: boolean;
+  public permissions?: Permissions;
 
-  public role: string;
-  public roleName: string;
+  public role?: string;
+  public roleName?: string;
 
   constructor(data: any = {}) {
     if ('user_details' in data) {

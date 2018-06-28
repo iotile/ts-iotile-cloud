@@ -34,30 +34,58 @@ export interface SerializedStream {
     public variable: string;
     public device: string;
     public project: string;
-    public template: string;
-    public org: string;
+    public template?: string;
+    public org?: string;
     public createdOn: string;
     public type: string;
     public enabled: boolean;
     public projectId: string;
 
     public mdo: Mdo;
-    public inputUnit: Unit;
-    public outputUnit: Unit;
+    public inputUnit?: Unit;
+    public outputUnit?: Unit;
 
-    public mdoType: string;
-    public dataLabel: string;
+    public mdoType?: string;
+    public dataLabel?: string;
 
-    public data: Array<DataPoint>;
-    public stats: Stats;
+    public data?: Array<DataPoint>;
+    public stats?: Stats;
 
-    public isModified: boolean;
+    public isModified?: boolean;
 
-    public rawValueFormat: string;
+    public rawValueFormat?: string;
     private _rawData: any;
 
     constructor(data: any = {}) {
-      this.loadData(data);
+      this.slug = data.slug;
+      this.id = data.id;
+      this.variable = data.variable;
+      this.device = data.device;
+      this.project = data.project;
+      this.mdoType = data.mdo_type || null;
+      this.mdo = new Mdo(data);
+      this.stats = new Stats();
+      this.rawValueFormat = data.raw_value_format || '<L';
+      this._rawData = data;
+      this.projectId = data.project_id;
+
+      this.createdOn = data.created_on;
+      this.type = data.type;
+      this.enabled = data.enabled;
+
+      //We always clear isModified since it will be set by the ProjectOverlay on an already built object
+      this.isModified = false;
+      
+      this.data = [];
+
+      this.dataLabel = data.data_label;
+
+      if (data.input_unit) {
+        this.inputUnit = new Unit(data.input_unit);
+      }
+      if (data.output_unit) {
+        this.outputUnit = new Unit(data.output_unit);
+      }
     }
 
     public loadData(data: any) {
@@ -83,8 +111,8 @@ export interface SerializedStream {
       this.data = [];
 
       this.dataLabel = data.data_label;
-      this.inputUnit = null;
-      this.outputUnit = null;
+      this.inputUnit = undefined;
+      this.outputUnit = undefined;
 
       if (data.input_unit) {
         this.inputUnit = new Unit(data.input_unit);
@@ -95,7 +123,7 @@ export interface SerializedStream {
     }
 
     public toJson() : SerializedStream {
-      let obj = {
+      let obj: {[key: string]: any} = {
         id: this.id,
         project_id: this.projectId,
         project: this.project,
@@ -264,11 +292,11 @@ export interface SerializedStream {
    * may be null if they were never initialized.
    */
   export class StreamUnitsDelta extends StreamDelta {
-    private oldUnit: Unit;
+    private oldUnit: Unit | undefined;
     private newUnit: Unit;
     private type: UnitType;
 
-    constructor(oldUnits: Unit, newUnits: Unit, type: UnitType, slug: string, classname: string, guid?: string) {
+    constructor(oldUnits: Unit | undefined, newUnits: Unit, type: UnitType, slug: string, classname: string, guid?: string) {
       super(classname, slug, guid);
 
       this.oldUnit = oldUnits;
@@ -289,20 +317,27 @@ export interface SerializedStream {
     }
 
     public check(stream: Stream): DeltaStatus {
-      let unitSlug = this.getSlug(stream.inputUnit);
+      if (stream.inputUnit && stream.outputUnit){
+        let unitSlug = this.getSlug(stream.inputUnit);
       
-      if (this.type == UnitType.Output) {
-        unitSlug = this.getSlug(stream.outputUnit);
-      }
+        if (this.type == UnitType.Output) {
+          unitSlug = this.getSlug(stream.outputUnit);
+        }
 
-      let oldSlug = this.getSlug(this.oldUnit);
-      let newSlug = this.getSlug(this.newUnit);
+        let oldSlug;
+        if (this.oldUnit){
+          oldSlug = this.getSlug(this.oldUnit);
+        }
+        let newSlug = this.getSlug(this.newUnit);
 
-      if (unitSlug === newSlug) {
-        return DeltaStatus.Outdated;
-      } else if (unitSlug === oldSlug) {
-        return DeltaStatus.Applies;
-      }else {
+        if (unitSlug === newSlug) {
+          return DeltaStatus.Outdated;
+        } else if (unitSlug === oldSlug) {
+          return DeltaStatus.Applies;
+        }else {
+          return DeltaStatus.Conflicted;
+        }
+      } else {
         return DeltaStatus.Conflicted;
       }
     }
@@ -321,8 +356,9 @@ export interface SerializedStream {
         if (this.type == UnitType.Input) {
           unit = stream.inputUnit;
         }
-
-        unit.setFromUnit(this.newUnit);
+        if (unit){
+          unit.setFromUnit(this.newUnit);
+        }
       }
     }
 
@@ -332,7 +368,7 @@ export interface SerializedStream {
         paramName = 'input_unit';
       }
 
-      let patch = {};
+      let patch: {[key: string]: any} = {};
       patch[paramName] = this.newUnit.slug;
       return patch;
     }
@@ -349,13 +385,13 @@ export interface SerializedStream {
   export class StreamInputUnitsDelta extends StreamUnitsDelta {
     public static ClassName: string = "StreamInputUnitsDelta";
 
-    constructor(oldUnits: Unit, newUnits: Unit, slug: string, guid?: string) {
+    constructor(oldUnits: Unit|undefined, newUnits: Unit, slug: string, guid?: string) {
       super(oldUnits, newUnits, UnitType.Input, slug, StreamInputUnitsDelta.ClassName, guid);
     }
 
     public static Deserialize(guid: string, slug: string, serializedArgs: any) : StreamInputUnitsDelta {
-      let oldUnit = null;
-      if (serializedArgs.oldUnit != null) {
+      let oldUnit;
+      if (serializedArgs.oldUnit) {
         oldUnit = new Unit(serializedArgs.oldUnit);
       }
 
@@ -368,13 +404,13 @@ export interface SerializedStream {
   export class StreamOutputUnitsDelta extends StreamUnitsDelta {
     public static ClassName: string = "StreamOutputUnitsDelta";
 
-    constructor(oldUnits: Unit, newUnits: Unit, slug: string, guid?: string) {
+    constructor(oldUnits: Unit|undefined, newUnits: Unit, slug: string, guid?: string) {
       super(oldUnits, newUnits, UnitType.Output, slug, StreamOutputUnitsDelta.ClassName, guid);
     }
 
     public static Deserialize(guid: string, slug: string, serializedArgs: any) : StreamOutputUnitsDelta {
-      let oldUnit = null;
-      if (serializedArgs.oldUnit != null) {
+      let oldUnit;
+      if (serializedArgs.oldUnit) {
         oldUnit = new Unit(serializedArgs.oldUnit);
       }
 

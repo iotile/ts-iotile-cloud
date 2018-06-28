@@ -1,9 +1,9 @@
-import * as IOTileCloudModule from "ng-iotile-cloud";
+import {Mdo} from "../../src/models/mdo";
 
 describe('MdoTest', () => {
 
   it('check MDO construction from data', () => {
-    let mdo: IOTileCloudModule.Mdo = new IOTileCloudModule.Mdo({
+    let mdo: Mdo = new Mdo({
       "multiplication_factor": 100,
       "division_factor": 2,
       "offset": 10.0,
@@ -16,7 +16,7 @@ describe('MdoTest', () => {
   });
 
   it('check MDO construction', () => {
-    let mdo: IOTileCloudModule.Mdo = new IOTileCloudModule.Mdo();
+    let mdo: Mdo = new Mdo();
     mdo.m = 100
     mdo.d = 2
     mdo.o = 10.0
@@ -29,7 +29,7 @@ describe('MdoTest', () => {
   });
 
   it('check limits to num decimals', () => {
-    let mdo: IOTileCloudModule.Mdo = new IOTileCloudModule.Mdo();
+    let mdo: Mdo = new Mdo();
     // Passing a 0.333... should limit to ten decimal points
     mdo.setFromFactor(0.33333333333333, true); 
     expect(mdo.m).toEqual(100000000);
@@ -37,13 +37,13 @@ describe('MdoTest', () => {
   });
 
   it('check mdo.setFromMdo', () => {
-    let src: IOTileCloudModule.Mdo = new IOTileCloudModule.Mdo();
+    let src: Mdo = new Mdo();
     src.m = 100
     src.d = 2
     src.o = 10.0
     expect(src.m).toEqual(100);
 
-    let dst: IOTileCloudModule.Mdo = new IOTileCloudModule.Mdo();
+    let dst: Mdo = new Mdo();
     dst.setFromMdo(src);
     expect(dst.m).toEqual(100);
     expect(dst.d).toEqual(2);
@@ -51,7 +51,7 @@ describe('MdoTest', () => {
     expect(dst.label).toBeUndefined();
 
     src.label = 'UPP';
-    dst = new IOTileCloudModule.Mdo();
+    dst = new Mdo();
     dst.setFromMdo(src);
     expect(dst.m).toEqual(100);
     expect(dst.d).toEqual(2);
@@ -60,7 +60,7 @@ describe('MdoTest', () => {
   });
 
   it('check mdo.setFromFactor', () => {
-    let mdo: IOTileCloudModule.Mdo = new IOTileCloudModule.Mdo();
+    let mdo: Mdo = new Mdo();
     mdo.setFromFactor(.001, false);
     expect(mdo.m).toEqual(1);
     expect(mdo.d).toEqual(1000);
@@ -89,12 +89,12 @@ describe('MdoTest', () => {
   });
 
   it('should have a function equal operator', () => {
-    let src: IOTileCloudModule.Mdo = new IOTileCloudModule.Mdo();
+    let src: Mdo = new Mdo();
     src.m = 100
     src.d = 2
     src.o = 10.0
 
-    let other = new IOTileCloudModule.Mdo();
+    let other = new Mdo();
     expect(src.equal(other)).toBe(false);
     expect(other.equal(src)).toBe(false);
     

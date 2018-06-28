@@ -15,11 +15,11 @@ export class GeneratedReport {
   public createdBy: string;
   public org: string;
   public status: string;
-  public indexFile: IndexFile;
+  public indexFile?: IndexFile;
   public userInfo: User = new User();
 
   public template: string;
-  public args: Object;
+  public args?: Object;
   public groupSlug: string;
   public token: string;
 

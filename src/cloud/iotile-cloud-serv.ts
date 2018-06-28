@@ -1,5 +1,5 @@
 import { Project, Org, Stream, Streamer, Device, Variable, SensorGraph, VarType, 
-    HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership } 
+    HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership, ServerInformation} 
     from "../models";
 import { startsWith, ArgumentError, BlockingEvent, UserNotLoggedInError} 
     from "iotile-common";
@@ -41,14 +41,6 @@ export interface OrgMetaData {
     projects: ProjectMetaData[];
 }
 
-export interface ServerInformation {
-  shortName: string,
-  longName: string,
-  url: string,
-  default?: boolean
-}
-  
-
 export class IOTileCloud {
   private Config: any;
   private _server: ServerInformation;
@@ -59,6 +51,7 @@ export class IOTileCloud {
 
   constructor (Config: any) {
     this.Config = Config;
+    this._server = this.defaultServer();
 
     this.inProgressConnections = 0;
     this.event = new BlockingEvent();
@@ -75,10 +68,23 @@ export class IOTileCloud {
         return server;
       }
     }
+
+    catCloud.info('No Default Server specified; targeting iotile.cloud');
+    return {
+      "shortName": "PRODUCTION",
+      "longName": "Production Server",
+      "url": "https://iotile.cloud/api/v1",
+      "default": true
+    };
   }
 
   public isDefault(): boolean {
-    return (this.server.url == this.defaultServer().url);
+    let defServer = this.defaultServer();
+    if (defServer){
+      return (this.server.url == defServer.url);
+    } else {
+      return false;
+    }
   }
 
   public set server(server: ServerInformation) {
@@ -94,11 +100,11 @@ export class IOTileCloud {
     }
   }
 
-  public Project (item) {
+  public Project (item: any) {
     return new Project(item);
   };
 
-  public Org (item) {
+  public Org (item: any) {
     return new Org(item);
   };
 
@@ -157,7 +163,7 @@ export class IOTileCloud {
       that.fetchFromServer('/project/')
       .then(function (result) {
         let list: Array<Project> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newProject = new Project(item);
           list.push(newProject);
         });
@@ -186,7 +192,7 @@ export class IOTileCloud {
       org: orgSlug
     }
 
-    let response = await this.postToServer('/project/new/', data);
+    let response: {[key: string]: any} = await this.postToServer('/project/new/', data);
     return response['id'];
   }
 
@@ -232,7 +238,7 @@ export class IOTileCloud {
       that.fetchFromServer('/org/')
       .then(function (result) {
         let list: Array<Org> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newOrg = new Org(item);
           list.push(newOrg);
         });
@@ -358,7 +364,7 @@ export class IOTileCloud {
       that.fetchFromServer('/device/?page_size=1000') //The default limit of devices returned per page is apparently 100
       .then(function (result: any) {
         let list: Array<Device> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newDevice = new Device(item);
           list.push(newDevice);
         });
@@ -393,13 +399,13 @@ export class IOTileCloud {
    *
    * @returns {Device[]} A list of the IOTile devices.
    */
-  public async fetchProjectDevices(projectId) {
+  public async fetchProjectDevices(projectId: string) {
     let that = this;
     return new Promise<Device[]>(function(resolve, reject) {
       that.fetchFromServer('/device/?project=' + projectId)
       .then(function (result: any) {
         let list: Array<Device> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newDevice = new Device(item);
           list.push(newDevice);
         });
@@ -434,7 +440,7 @@ export class IOTileCloud {
    *
    * @returns {Device} An IOTile Device.
    */
-  public async fetchDevice(deviceSlug) {
+  public async fetchDevice(deviceSlug: string) {
     let that = this;
     return new Promise<Device>(function(resolve, reject) {
       that.fetchFromServer('/device/' + deviceSlug + '/')
@@ -474,7 +480,7 @@ export class IOTileCloud {
       that.fetchFromServer('/stream/?page_size=3000')
       .then(function (result: any) {
         let list: Array<Stream> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newStream = new Stream(item);
           list.push(newStream);
         });
@@ -509,13 +515,13 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
-  public async fetchProjectStreams(projectId) {
+  public async fetchProjectStreams(projectId: string) {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
       that.fetchFromServer('/stream/?project=' + projectId)
       .then(function (result: any) {
         let list: Array<Stream> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newStream = new Stream(item);
           list.push(newStream);
         });
@@ -550,7 +556,7 @@ export class IOTileCloud {
    *
    * @returns {Stream} An IOTile Stream.
    */
-  public async fetchStream(streamSlug) {
+  public async fetchStream(streamSlug: string) {
     let that = this;
     return new Promise<Stream>(function(resolve, reject) {
       that.fetchFromServer('/stream/' + streamSlug + '/')
@@ -590,7 +596,7 @@ export class IOTileCloud {
       that.fetchFromServer('/variable/')
       .then(function (result: any) {
         let list: Array<Variable> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newVariable = new Variable(item);
           list.push(newVariable);
         });
@@ -625,13 +631,13 @@ export class IOTileCloud {
    *
    * @returns {Variable[]} A list of the IOTile variables.
    */
-  public async fetchProjectVariables(projectId) {
+  public async fetchProjectVariables(projectId: string) {
     let that = this;
     return new Promise<Variable[]>(function(resolve, reject) {
       that.fetchFromServer('/variable/?project=' + projectId)
       .then(function (result: any) {
         let list: Array<Variable> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newVariable = new Variable(item);
           list.push(newVariable);
         });
@@ -666,7 +672,7 @@ export class IOTileCloud {
    *
    * @returns {Variable} An IOTile Variable.
    */
-  public async fetchVariable(variableSlug) {
+  public async fetchVariable(variableSlug: string) {
     let that = this;
     return new Promise<Variable>(function(resolve, reject) {
       that.fetchFromServer('/variable/' + variableSlug + '/')
@@ -706,7 +712,7 @@ export class IOTileCloud {
       that.fetchFromServer('/vartype/')
       .then(function (result: any) {
         let list: Array<VarType> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newVarType = new VarType(item);
           list.push(newVarType);
         });
@@ -744,7 +750,7 @@ export class IOTileCloud {
       that.fetchFromServer('/pt/')
       .then(function (result: any) {
         let list: Array<ProjectTemplate> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newProjectTemplate = new ProjectTemplate(item);
           list.push(newProjectTemplate);
         });
@@ -783,7 +789,7 @@ export class IOTileCloud {
       that.fetchFromServer('/propertytemplate/')
       .then(function (result: any) {
         let list: Array<PropertyTemplate> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newPropertyTemplate = new PropertyTemplate(item);
           list.push(newPropertyTemplate);
         });
@@ -817,13 +823,13 @@ export class IOTileCloud {
    *
    * @returns {Property[]} An IOTile Property.
    */
-  public async fetchProperties(deviceSlug) {
+  public async fetchProperties(deviceSlug: string) {
     let that = this;
     return new Promise<Property[]>(function(resolve, reject) {
       that.fetchFromServer('/property/?target=' + deviceSlug)
       .then(function (result: any) {
         let list: Array<Property> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newProperty = new Property(item);
           list.push(newProperty);
         });
@@ -858,7 +864,7 @@ export class IOTileCloud {
    *
    * @returns {Variable} An IOTile Variable.
    */
-  public async fetchVarType(variableSlug) {
+  public async fetchVarType(variableSlug: string) {
     let that = this;
     return new Promise<VarType>(function(resolve, reject) {
       that.fetchFromServer('/variable/' + variableSlug + '/type/')
@@ -877,7 +883,7 @@ export class IOTileCloud {
       that.fetchFromServer('/sg/')
       .then(function (result: any) {
         let list: Array<SensorGraph> = [];
-        lodash.forEach(result, function (item) {
+        lodash.forEach(result, function (item: any) {
           let newSG = new SensorGraph(item);
           list.push(newSG);
         });
@@ -889,17 +895,17 @@ export class IOTileCloud {
   }
 
   public async refreshToken(currentToken: string) : Promise<string> {
-    let response = await this.postToServer('/auth/api-jwt-refresh/', {token: currentToken});
+    let response: {[key: string]: any} = await this.postToServer('/auth/api-jwt-refresh/', {token: currentToken});
     return response['token'];
   }
 
   public async logout() {
-    await this.postToServer('/auth/logout/', null); 
+    await this.postToServer('/auth/logout/', undefined); 
   }
 
   public async login(email: string, password: string) : Promise<User> {
     try {
-      let response = await this.postToServer('/auth/api-jwt-auth/', {username: email, password: password});
+      let response: {[key: string]: any} = await this.postToServer('/auth/api-jwt-auth/', {username: email, password: password});
       let user = await this.fetchUserData(response['token']);
       return user;
     } catch (err) {
@@ -930,7 +936,7 @@ export class IOTileCloud {
   }
 
   public async fetchUserData(token: string) : Promise<User> {
-    let response = await this.fetchFromServer('/account/', {'Authorization': "JWT " + token});
+    let response : {[key: string]: any}= await this.fetchFromServer('/account/', {'Authorization': "JWT " + token});
 
     if (!response['length']) {
       throw new UserNotLoggedInError("No information for logged in user token");
@@ -945,7 +951,7 @@ export class IOTileCloud {
   }
 
   private async fetchFromServer(uri: string, headers?: {}) : Promise<{} | Array<{}>> {
-    let request = {
+    let request: {[key: string]: any} = {
       method: 'GET',
       url: this._server.url + uri,
       timeout: this.Config.ENV.HTTP_TIMEOUT
@@ -958,7 +964,7 @@ export class IOTileCloud {
     let that = this;
     return new Promise<{} | Array<{}>>(function(resolve, reject) {
       that.inProgressConnections += 1;
-      axios(request).then(function (response) {
+      axios(request).then(function (response: any) {
         catCloud.debug(`[IOTileCloud] Response: ${response}`);
         that.inProgressConnections -= 1;
         if (response.data['results'] !== undefined) {
@@ -966,15 +972,15 @@ export class IOTileCloud {
         } else {
           resolve(response.data);
         }
-      }, function (err) {
+      }, function (err: any) {
         that.inProgressConnections -= 1;
         reject(new HttpError(err));
       });
     });
   }
 
-  private async postToServer(uri: string, data: {}) : Promise<{} | Array<{}>> {
-    let request = {method: 'POST', 
+  private async postToServer(uri: string, data?: {}) : Promise<{} | Array<{}>> {
+    let request: {[key: string]: any} = {method: 'POST', 
                                       url: this._server.url + uri,
                                       timeout: this.Config.ENV.HTTP_TIMEOUT};
 
@@ -988,7 +994,7 @@ export class IOTileCloud {
     return new Promise<{} | Array<{}>>(function(resolve, reject) {
       that.inProgressConnections += 1;
 
-      axios(request).then(function (response) {
+      axios(request).then(function (response: any) {
         catCloud.debug(`[IOTileCloud] Response: ${response}`);
         that.inProgressConnections -= 1;
 
@@ -997,7 +1003,7 @@ export class IOTileCloud {
         } else {
           resolve(response.data);
         }
-      }, function (err) {
+      }, function (err: any) {
         that.inProgressConnections -= 1;
         reject(new HttpError(err));
       });
@@ -1027,7 +1033,7 @@ export class IOTileCloud {
       "name": file.name
     };
 
-    let resp = await this.postToServer(`/note/${note_id}/uploadurl/`, url_payload);
+    let resp: {[key: string]: any} = await this.postToServer(`/note/${note_id}/uploadurl/`, url_payload);
     if (resp){
       let formData = new FormData();
       let metaData = resp['fields'];
@@ -1178,10 +1184,10 @@ export class IOTileCloud {
 
     return new Promise<any>(function(resolve, reject) {
       that.inProgressConnections += 1;
-      axios(payload).then(function (result) {
+      axios(payload).then(function (result: any) {
         that.inProgressConnections -= 1;
         resolve(result);
-      }, function (err) {
+      }, function (err: any) {
         that.inProgressConnections -= 1;
         reject(new HttpError(err));
       });

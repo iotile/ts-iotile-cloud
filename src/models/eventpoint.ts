@@ -15,11 +15,11 @@ export class EventPage extends Page {
 
 export class EventPoint {
     public id: number;
-    public stream: string;
+    public stream?: string;
     public timestamp: Date;
-    public incrementalId: number;
-    public dirtyTimestamp: boolean;
-    public summaryData: BasicDictionary;
+    public incrementalId?: number;
+    public dirtyTimestamp?: boolean;
+    public summaryData?: BasicDictionary;
     public ext: string;
 
     constructor(data: any = {}) {

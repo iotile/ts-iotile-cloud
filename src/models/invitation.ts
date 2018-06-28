@@ -3,9 +3,9 @@ export interface InvitationPendingDictionary {
 }
 
 export class Invitation {
-  public email: string;
-  public sentOn: Date;
-  public sentBy: string;
+  public email?: string;
+  public sentOn?: Date;
+  public sentBy?: string;
 
   constructor(data: any = {}) {
     if ('email' in data) {

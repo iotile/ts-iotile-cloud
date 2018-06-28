@@ -8,7 +8,7 @@ import {Unit} from "./unit";
 import {Org} from "./org";
 import {Mdo} from "./mdo";
 import {ArgumentError} from "iotile-common";
-import { ProjectTemplate, ProjectTemplateDictionary } from "ng-iotile-cloud";
+import { ProjectTemplate, ProjectTemplateDictionary } from "./projecttemplate";
 
 export interface VariableDictionary {
   [index: string]: Variable;
@@ -32,7 +32,7 @@ export class Project {
   public slug: string;
   public rawData: any;
 
-  public org: Org;
+  public org?: Org;
   public template: string;
   public projTemplateMap: ProjectTemplateDictionary;
   public variables: Array<Variable>;
@@ -84,26 +84,26 @@ export class Project {
     return proj;
   }
 
-  public static Unserialize(obj: {}) : Project {
+  public static Unserialize(obj: {[key: string]: any}) : Project {
     //Extract the org first since the slug is used above 
     let org = obj['org'];
     obj['orgSlug'] = (<Org>org).slug;
     let proj = new Project(obj);
 
     if (obj['devices'] && obj['devices'].length > 0) {
-      proj.addDevices(obj['devices'].map((data) => new Device(data)));
+      proj.addDevices(obj['devices'].map((data: any) => new Device(data)));
     } 
 
     if(obj['variables'] && obj['variables'].length > 0) {
-      proj.addVariables(obj['variables'].map((variable) => new Variable(variable)));
+      proj.addVariables(obj['variables'].map((variable: any) => new Variable(variable)));
     }
 
     if(obj['streams'] && obj['streams'].length > 0) {
-      proj.addStreams(obj['streams'].map((stream) => new Stream(stream)));
+      proj.addStreams(obj['streams'].map((stream: any) => new Stream(stream)));
     }
 
     if(obj['sensorGraphs'] && obj['sensorGraphs'].length > 0) {
-      proj.addSensorGraphs(obj['sensorGraphs'].map((sg) => new SensorGraph(sg)));
+      proj.addSensorGraphs(obj['sensorGraphs'].map((sg: any) => new SensorGraph(sg)));
     }
 
     return proj;
@@ -133,16 +133,16 @@ export class Project {
   public addSensorGraphs(sg: Array<SensorGraph>): void {
     this.sensorGraphs = sg;
     this.sensorGraphs.forEach(sg => {
-      this.sensorGraphMap[sg.slug] = sg;
+      this.sensorGraphMap[+sg.slug] = sg;
     });
   }
 
   public addSensorGraph(sg: SensorGraph): void {
     this.sensorGraphs.push(sg);
-    this.sensorGraphMap[sg.slug] = sg;
+    this.sensorGraphMap[+sg.slug] = sg;
   }
 
-  public getSensorGraph(slug): SensorGraph {
+  public getSensorGraph(slug: number): SensorGraph {
     return this.sensorGraphMap[slug];
   }
 
@@ -174,11 +174,11 @@ export class Project {
     this.variableMap[variable.slug] = variable;
   }
 
-  public getVariable(slug): Variable {
+  public getVariable(slug: string): Variable | undefined {
     return this.variableMap[slug];
   }
 
-  public getVariableForStream(slug): Variable {
+  public getVariableForStream(slug: string): Variable | undefined {
     if (slug) {
       let elements: Array<string> = slug.split("--");
       if (elements.length === 4) {
@@ -189,7 +189,7 @@ export class Project {
     return;
   }
 
-  public getDevice(slug: string, unmodified?: boolean): Device {
+  public getDevice(slug: string, unmodified?: boolean): Device | null {
     let device = this.deviceMap[slug];
     if (!device) {
       return null;
@@ -213,7 +213,7 @@ export class Project {
     return (slug in this.deviceMap);
   }
 
-  public getStream(slug, unmodified?: boolean): Stream {
+  public getStream(slug: string, unmodified?: boolean): Stream | null {
     let stream = this.streamMap[slug];
     if (!stream) {
       return null;
@@ -234,23 +234,28 @@ export class Project {
 
     if (filterByIOInfo) {
       let device = this.getDevice(deviceSlug);
-      let sg = this.getSensorGraph(device.sg);
-      let lids = sg.getStreamLids();
-      let streamIDBase =  ['s', this.gid, device.gid].join('--');
+      if (device !== null){
+        let sg = this.getSensorGraph(+device.sg);
+        let lids = sg.getStreamLids();
+        let streamIDBase =  ['s', this.gid, device.gid].join('--');
 
-      for (let lid of lids) {
-        let streamSlug = streamIDBase + '--' + lid;
-        let stream = this.getStream(streamSlug);
-        if (stream == null) {
-          throw new ArgumentError("Could not find stream specified in sensorgraph ioInfo: " + streamSlug);
+        for (let lid of lids) {
+          let streamSlug = streamIDBase + '--' + lid;
+          let stream = this.getStream(streamSlug);
+          if (stream == null) {
+            throw new ArgumentError("Could not find stream specified in sensorgraph ioInfo: " + streamSlug);
+          }
+
+          streams[streamSlug] = stream;
         }
-
-        streams[streamSlug] = stream;
       }
     } else {
       for (let stream of this.streams) {
         if (stream.device == deviceSlug) {
-          streams[stream.slug] = this.getStream(stream.slug);
+          let stream_obj = this.getStream(stream.slug);
+          if (stream_obj){
+            streams[stream_obj.slug];
+          }
         }
       }
     }
@@ -287,7 +292,7 @@ export class Project {
     this.overlay.prune(this);
   }
 
-  public computeInputValue(stream: Stream, rawValue: number, mdo: Mdo): number {
+  public computeInputValue(stream: Stream, rawValue: number, mdo?: Mdo): number {
     let result: number;
     let varSlug: string = stream.variable;
     let varObj: Variable = this.variableMap[varSlug];
@@ -299,38 +304,38 @@ export class Project {
     result = mdo.computeValue(rawValue);
 
     // 2.- Modify to internal storage units
-    let inputUnit: Unit = stream.inputUnit;
+    let inputUnit = stream.inputUnit;
     if (!inputUnit && varObj) {
       inputUnit = varObj.inputUnit;
     }
-    if (inputUnit) {
+    if (inputUnit && inputUnit.mdo) {
       result = inputUnit.mdo.computeValue(result);
     }
 
     return result;
   }
 
-  public getInputUnits(stream: Stream): Unit {
+  public getInputUnits(stream: Stream): Unit | undefined {
     if (stream.inputUnit) {
       return stream.inputUnit;
     }
     
     let variable = this.variableMap[stream.variable];
     if (!variable) {
-      return null;
+      return undefined;
     }
 
     return variable.inputUnit;
   }
 
-  public getOutputUnits(stream: Stream): Unit {
+  public getOutputUnits(stream: Stream): Unit | undefined{
     if (stream.outputUnit) {
       return stream.outputUnit;
     }
     
     let variable = this.variableMap[stream.variable];
     if (!variable) {
-      return null;
+      return undefined;
     }
 
     return variable.outputUnit;
@@ -342,11 +347,11 @@ export class Project {
     let varObj: Variable = this.variableMap[varSlug];
 
     // Modify from internal storage units
-    let outputUnit: Unit = stream.outputUnit;
+    let outputUnit = stream.outputUnit;
     if (!outputUnit && varObj) {
       outputUnit = varObj.outputUnit;
     }
-    if (outputUnit) {
+    if (outputUnit && outputUnit.mdo) {
       result = outputUnit.mdo.computeValue(value);
     } else {
       result = value;
@@ -369,29 +374,31 @@ export class Project {
    * @returns {DataPoint} Modified dataPoint
    */
   public processDataPoint(stream: Stream, dataPoint: DataPoint) {
-    dataPoint.value = this.computeInputValue(stream, dataPoint.rawValue, null);
-    dataPoint.outValue = this.computeOutputValue(stream, dataPoint.value);
-    // Figure out units for displayValue field
-    let outUnit: Unit = stream.outputUnit;
-    let variable: Variable;
-    if (!outUnit) {
-      // If stream has no OutputUnit, default to the Variable one.
-      variable = this.getVariable(stream.variable);
-      if (variable) {
-        outUnit = variable.outputUnit;
+    if (dataPoint.rawValue && dataPoint.value){
+      dataPoint.value = this.computeInputValue(stream, dataPoint.rawValue, undefined);
+      dataPoint.outValue = this.computeOutputValue(stream, dataPoint.value);
+      // Figure out units for displayValue field
+      let outUnit = stream.outputUnit;
+      let variable: Variable | undefined;
+      if (!outUnit) {
+        // If stream has no OutputUnit, default to the Variable one.
+        variable = this.getVariable(stream.variable);
+        if (variable) {
+          outUnit = variable.outputUnit;
+        }
       }
-    }
-    if (outUnit) {
-      dataPoint.displayValue = dataPoint.outValue.toFixed(outUnit.decimalPlaces);
-    } else {
-      if (variable) {
-        dataPoint.displayValue = dataPoint.outValue.toFixed(variable.decimalPlaces);
+      if (outUnit) {
+        dataPoint.displayValue = dataPoint.outValue.toFixed(outUnit.decimalPlaces);
       } else {
-        dataPoint.displayValue = dataPoint.value.toString();
+        if (variable) {
+          dataPoint.displayValue = dataPoint.outValue.toFixed(variable.decimalPlaces);
+        } else {
+          dataPoint.displayValue = dataPoint.value.toString();
+        }
       }
-    }
 
-    return dataPoint;
+      return dataPoint;
+    }
   };
 
 }
