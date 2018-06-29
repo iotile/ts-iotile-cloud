@@ -3,7 +3,7 @@ import {Variable} from "../../src/models/variable";
 import {Stream} from "../../src/models/stream";
 import {DataPoint} from "../../src/models/datapoint";
 
-xdescribe('ComputeValue', () => {
+describe('ComputeValue', () => {
 
   const dummyProject: Project = new Project({
     "id": "84e3869d-1fdb-4203-9b69-18b417e2b0e0",
@@ -118,10 +118,14 @@ xdescribe('ComputeValue', () => {
       "type": "ITR",
       "timestamp": "2016-09-13T20:29:13.825000Z",
       "int_value": 20,
+      "value": 10.0,
+      "display_value": "4"
     });
     point = proj.processDataPoint(stream, point);
     expect(point.value).toBe(35);
     expect(point.outValue).toBe(7);
     expect(point.displayValue).toBe('7.00');
+
+    expect(proj.computeValue(stream, point)).toBe(2.0);
   });
 });

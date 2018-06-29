@@ -1,7 +1,8 @@
-import {Variable} from "./variable";
-import {Stream} from "./stream";
-import {Device} from "./device";
-import {SensorGraph} from "./sensorgraph";
+import {Variable, VariableDictionary} from "./variable";
+import {Stream, StreamDictionary} from "./stream";
+import {Device, DeviceDictionary} from "./device";
+import {SensorGraph, SensorGraphDictionary} from "./sensorgraph";
+import {Property, PropertyDictionary} from "./property";
 import {ProjectOverlay} from "../cloud/project-overlay";
 import {DataPoint} from "./datapoint";
 import {Unit} from "./unit";
@@ -10,30 +11,19 @@ import {Mdo} from "./mdo";
 import {ArgumentError} from "iotile-common";
 import { ProjectTemplate, ProjectTemplateDictionary } from "./projecttemplate";
 
-export interface VariableDictionary {
-  [index: string]: Variable;
-}
-export interface StreamDictionary {
-  [index: string]: Stream;
-}
-export interface DeviceDictionary {
-  [index: string]: Device;
-}
-export interface SensorGraphDictionary {
-  [index: number]: SensorGraph;
-}
-
 export class Project {
-
   public id: string;
   public gid: string;
   public name: string;
+  public createdBy: string;
+  public createdOn: Date;
   public orgSlug: string;
   public slug: string;
   public rawData: any;
 
   public org?: Org;
   public template: string;
+  public projectTemplate?: string;
   public projTemplateMap: ProjectTemplateDictionary;
   public variables: Array<Variable>;
   public variableMap: VariableDictionary;
@@ -44,6 +34,9 @@ export class Project {
   private streams: Array<Stream>;
   private streamMap: StreamDictionary;
   public overlay: ProjectOverlay;
+  public properties: Array<Property>;
+  public propertyMap: PropertyDictionary;
+  public counts: { [index: string]: number };
 
   constructor(data: any = {}) {
     this.id = data.id;
@@ -65,7 +58,23 @@ export class Project {
     this.streamMap = {};
     this.sensorGraphMap = {};
     this.overlay = new ProjectOverlay();
+    this.properties = [];
+    this.createdBy = data.created_by;
+    this.createdOn = new Date(data.created_on);
+    if ('project_template' in data) {
+      this.projectTemplate = data.project_template;
+    }
 
+    if (data.counts) {
+      this.counts = data.counts;
+    } else {
+      this.counts = {};
+    }
+
+    this.deviceMap = {};
+    this.streamMap = {};
+    this.variableMap = {};
+    this.propertyMap = {};
   }
 
   private toJson(): any {
@@ -264,7 +273,7 @@ export class Project {
   }
 
   public getSensorGraphSlugs(): string[] {
-    return this.devices.map(device => device.sg);
+    return this.devices.map(device => device.sensorGraphSlug);
   }
 
   /* 
@@ -290,6 +299,18 @@ export class Project {
 
     //If these changes cause any of our internal overlay deltas to not longer apply, remove them
     this.overlay.prune(this);
+  }
+
+  public addProperties(properties: Array<Property>): void {
+    this.properties = properties;
+    this.propertyMap = {};
+    this.properties.forEach(property => {
+      this.propertyMap[property.name] = property;
+    });
+  }
+
+  public getProperty(name: string): Property {
+    return this.propertyMap[name];
   }
 
   public computeInputValue(stream: Stream, rawValue: number, mdo?: Mdo): number {
@@ -339,6 +360,26 @@ export class Project {
     }
 
     return variable.outputUnit;
+  }
+
+  public computeValue(stream: Stream, data: DataPoint): number | undefined {
+    let result: number | undefined = undefined;
+    let mdo: Mdo;
+    if (data.value){
+      if (!stream) {
+        return result;
+      }
+      if (stream.outputUnit) {
+        mdo = stream.outputUnit.mdo;
+        if (mdo) {
+          result = mdo.computeValue(data.value);
+        }
+      } else {
+        result = data.outValue ? data.outValue : data.value;
+      }
+  
+      return result;
+    }
   }
 
   public computeOutputValue(stream: Stream, value: number): number {

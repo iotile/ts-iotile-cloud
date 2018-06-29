@@ -2,6 +2,8 @@ export interface MdoDictionary {
   [ index: string ]: Mdo;
 }
 
+const MAX_INT32: number = 2147483647;
+
 export interface SerializedMDOShort {
   m: number;
   d: number;
@@ -93,16 +95,16 @@ export class Mdo {
   }
 
   public setFromMdo(src: Mdo): void {
-      if (src.m != null) {
+      if (src.m) {
           this.m = src.m;
       }
-      if (src.d != null) {
+      if (src.d) {
           this.d = src.d;
       }
-      if (src.o != null) {
+      if (src.o) {
           this.o = src.o;
       }
-      if (src.label != null) {
+      if (src.label) {
           this.label = src.label;
       }
   }
@@ -127,5 +129,17 @@ export class Mdo {
       eqStr += ' + ' + this.o;
     }
     return eqStr
+  }
+
+  public getPatchPayload(): any {
+    let payload: any = {
+      multiplication_factor: this.m,
+      division_factor: this.d,
+      offset: this.o
+    };
+    if (this.label) {
+      payload['mdo_label'] = this.label;
+    }
+    return payload;
   }
 }

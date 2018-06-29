@@ -1,16 +1,30 @@
 import {ModelDelta, DeltaStatus} from "../base/model-delta";
+import {SensorGraph} from "./sensorgraph";
+import {Property, PropertyDictionary} from "./property";
+import {DataBlock} from "./datablock";
+
+export interface DeviceDictionary {
+  [ index: string ]: Device;
+}
 
 export class Device {
   public id: number;
   public slug: string;
   public gid: string;
   public label: string;
-  public lat: string | null;
-  public lng: string| null;
+  public lat: number | null;
+  public lng: number | null;
   public template: string;
   public rawData: any;
   public project: string;
-  public sg: string;
+  public externalId: string;
+  public state: string;
+  public busy: boolean = false;
+  public sensorGraphSlug: string;
+  public sg?: SensorGraph;
+  public propertyMap: PropertyDictionary;
+  public properties: Array<Property>;
+  public dataBlock?: DataBlock;
 
   public isModified: boolean;
   public active: boolean;
@@ -23,15 +37,27 @@ export class Device {
     this.slug = data.slug;
     this.gid = data.gid;
     this.label = data.label || data.slug;
-    this.lat = data.lat || null;
-    this.lng = data.lon || null;
     this.template = data.template || "";
-    this.sg = data.sg;
     this.rawData = data;
     this.project = data.project;
     this.drifterMode = data.drifter_mode || false;
     this.isModified = false;
     this.active = data.active || true;
+    this.state = data.state;
+    this.externalId = data.external_id;
+
+    this.lat = data.lat || null;
+    this.lng = data.lon || null;
+    this.lat = parseFloat(data.lat || 0);
+    this.lng = parseFloat(data.lon || 0);
+    this.sensorGraphSlug = data.sg;
+
+    this.properties = [];
+    this.propertyMap = {};
+
+    if ('busy' in data) {
+      this.busy = data.busy;
+    }
   }
 
   public toJson(): any {
@@ -43,6 +69,50 @@ export class Device {
     result.lon = this.lng;
 
     return result
+  }
+
+  public getPatchPayload(): any {
+    let payload: any = {
+      label: this.label
+    };
+    if (this.lat) {
+      payload.lat = this.lat;
+    }
+    if (this.lng) {
+      payload.lon = this.lng;
+    }
+    payload.active = this.active;
+
+    if (this.state) {
+      payload.state = this.state;
+    }
+
+    return payload;
+  }
+
+  public addProperties(properties: Array<Property>): void {
+    this.properties = properties;
+    this.properties.forEach(property => {
+      this.propertyMap[property.name] = property;
+    });
+  }
+
+  public getProperty(name: string): Property {
+    return this.propertyMap[name];
+  }
+
+  public isDataBlock(): boolean {
+    return (this.dataBlock != null);
+  }
+
+  public getStateDisplay(): string {
+    let factory: any = {
+      'N0': 'Available',
+      'N1': 'Active',
+      'B0': 'Resetting',
+      'B1': 'Archiving'
+    };
+    return factory[this.state];
   }
 }
 

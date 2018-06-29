@@ -5,6 +5,10 @@ import {Stats} from "./stats";
 import {ModelDelta, DeltaStatus} from "../base/model-delta";
 import {ArgumentError} from "iotile-common";
 
+export interface StreamDictionary {
+  [index: string]: Stream;
+}
+
 export interface SerializedStream {
     id: string,
     project_id: string,
@@ -32,13 +36,17 @@ export interface SerializedStream {
     public id: string;
     public slug: string;
     public variable: string;
+    public block?: string;
+    public variableName?: string;
+    public variableType?: string;
+    public variableLocalId?: number;
     public device: string;
     public project: string;
+    public enabled: boolean = true;
     public template?: string;
     public org?: string;
     public createdOn: string;
     public type: string;
-    public enabled: boolean;
     public projectId: string;
 
     public mdo: Mdo;
@@ -79,6 +87,16 @@ export interface SerializedStream {
       this.data = [];
 
       this.dataLabel = data.data_label;
+      if (data.block) {
+        this.block = data.block;
+      }
+      if (data.var_name) {
+        this.variableName = data.var_name;
+      }
+      if (data.var_type) {
+        this.variableType = data.var_type;
+      }
+      this.variableLocalId = data.var_lid;
 
       if (data.input_unit) {
         this.inputUnit = new Unit(data.input_unit);
@@ -168,6 +186,28 @@ export interface SerializedStream {
         }
       }
       return "";
+    }
+
+    public resetData(): void {
+      this.data = [];
+    }
+  
+    public getPatchPayload(): any {
+      let basic: any = {
+        mdo_type: this.mdoType,
+        enabled: this.enabled
+      };
+      let payload: any = Object.assign(basic, this.mdo.getPatchPayload());
+      if (this.inputUnit) {
+        payload['input_unit'] = this.inputUnit.slug;
+      }
+      if (this.outputUnit) {
+        payload['output_unit'] = this.outputUnit.slug;
+      }
+      if (this.dataLabel) {
+        payload['data_label'] = this.dataLabel;
+      }
+      return payload;
     }
   }
 

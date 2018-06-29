@@ -43,7 +43,7 @@ export interface OrgMetaData {
 
 export class IOTileCloud {
   private Config: any;
-  private _server: ServerInformation;
+  private _server?: ServerInformation;
   private event: BlockingEvent;
   public initialized: Promise<void>;
 
@@ -51,7 +51,6 @@ export class IOTileCloud {
 
   constructor (Config: any) {
     this.Config = Config;
-    this._server = this.defaultServer();
 
     this.inProgressConnections = 0;
     this.event = new BlockingEvent();
@@ -951,6 +950,10 @@ export class IOTileCloud {
   }
 
   private async fetchFromServer(uri: string, headers?: {}) : Promise<{} | Array<{}>> {
+    if (!this._server){
+      throw new Error(`Cannot fetch ${uri}: unknown server address`);
+    }
+    
     let request: {[key: string]: any} = {
       method: 'GET',
       url: this._server.url + uri,
@@ -980,6 +983,10 @@ export class IOTileCloud {
   }
 
   private async postToServer(uri: string, data?: {}) : Promise<{} | Array<{}>> {
+    if (!this._server){
+      throw new Error(`Cannot post to ${uri}: unknown server address`);
+    };
+
     let request: {[key: string]: any} = {method: 'POST', 
                                       url: this._server.url + uri,
                                       timeout: this.Config.ENV.HTTP_TIMEOUT};
@@ -1173,6 +1180,10 @@ export class IOTileCloud {
       modelType = '/device/';
     } else {
       throw new ArgumentError("Unknown slug type in patchModel: " + slug);
+    }
+
+    if (!this._server){
+      throw new Error(`Cannot patch ${slug}: unknown server address`);
     }
 
     let payload = {

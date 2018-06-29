@@ -1,20 +1,9 @@
 import {DisplayWidget} from "./displaywidget";
+import {VariableTemplate} from "./variable";
 
-export interface VariableTemplate {
-  id: number,
-  label: string,
-  lid_hex: string,
-  derived_lid_hex: string,
-  var_type: string,
-  default_input_unit: string,
-  default_output_unit: string,
-  ctype: string,
-  m: number,
-  d: number,
-  o: number,
-  app_only: boolean,
-  web_only: boolean
-};
+export interface SensorGraphDictionary {
+  [index: number]: SensorGraph;
+}
 
 export class SensorGraph {
   public id: number;
@@ -26,6 +15,9 @@ export class SensorGraph {
   public displayWidgetTemplates: Array<DisplayWidget>;
   public uiExtra: any;
   public version: string;
+  public majorVersion: number;
+  public minorVersion: number;
+  public patchVersion: number;
   public createdOn: string;
   public rawData: string;
 
@@ -38,6 +30,9 @@ export class SensorGraph {
     this.variableTemplates = data.variable_templates;
     this.uiExtra = data.ui_extra;
     this.version = data.version;
+    this.majorVersion = data.major_version;
+    this.minorVersion = data.minor_version;
+    this.patchVersion = data.patch_version;
     this.createdOn = data.created_on;
     this.rawData = data;
     this.displayWidgetTemplates = [];
@@ -67,25 +62,30 @@ export class SensorGraph {
     }
   }
 
-  public getUiExtra (): any {
-    if (this.uiExtra && this.uiExtra.mobile) {
-      return this.uiExtra.mobile;
+  public getVersion(): string {
+    return 'v' + [this.majorVersion, this.minorVersion, this.patchVersion].join('.');
+  }
+
+  public getUiExtra(type: string): any {
+    if (this.uiExtra && this.uiExtra[type]) {
+      return this.uiExtra[type];
     }
     return null;
-  };
+  }
 
-  public getIoInfo (): any {
-    if (this.getUiExtra()) {
-      let uiExtra: any = this.getUiExtra();
+  public getIoInfo(type: string): any {
+    if (this.getUiExtra(type)) {
+      let uiExtra: any = this.getUiExtra(type);
       if (uiExtra.ioInfo && uiExtra.ioInfo.order && uiExtra.ioInfo.map) {
         return uiExtra.ioInfo;
       }
     }
     return null;
-  };
+  }
 
+  // Mobile method
   public getStreamLids(): string[] {
-    let ioInfo = this.getIoInfo();
+    let ioInfo = this.getIoInfo('mobile');
     if (ioInfo == null) {
       return [];
     }
@@ -108,9 +108,10 @@ export class SensorGraph {
     return streams;
   }
 
+  // Mobile method
   private getIoInfoParameter(lid: string, name: string): string {
 
-    let ioInfo: any = this.getIoInfo();
+    let ioInfo: any = this.getIoInfo('mobile');
     // 1. Check if there is an ioInfo.map and if so, if there is
     //    data for the given LID
     if (ioInfo) {
@@ -119,7 +120,7 @@ export class SensorGraph {
       }
     } else {
       // 2. Look for a global value for that parameter name
-      let uiExtra: any = this.getUiExtra();
+      let uiExtra: any = this.getUiExtra('mobile');
       if (uiExtra[name]) {
         return uiExtra[name];
       }

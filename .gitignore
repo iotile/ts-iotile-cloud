@@ -8,3 +8,4 @@ coverage
 yarn.lock
 .vscode
 .github
+.rpt2_cache

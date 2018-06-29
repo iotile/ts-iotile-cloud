@@ -55,14 +55,18 @@ export class DisplayWidget {
   public type: string;
   public args: RPCArgs | StatefulRPCArgs| StatefulSwitchArgs | null;
   public varType: string;
-  public show: boolean;
+  public derivedType: string;
+  public showInApp: boolean;
+  public showInWeb: boolean;
 
   constructor(data: any = {}) {
     this.label = data.label;
     this.lid = data.lid_hex;
     this.type = data.type;
     this.varType = data.var_type;
-    this.show = data.show_in_app || false;
+    this.derivedType = data.derived_unit_type;
+    this.showInApp = data.show_in_app || false;
+    this.showInWeb = data.show_in_web || false;
 
     if (!data.args) {
       this.args = null;

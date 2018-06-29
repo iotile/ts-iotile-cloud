@@ -1,6 +1,26 @@
 import {Mdo} from "./mdo";
 import {Unit} from "./unit";
 
+export interface VariableDictionary {
+  [index: string]: Variable;
+}
+
+export interface VariableTemplate {
+  id: number,
+  label: string,
+  lid_hex: string,
+  derived_lid_hex: string,
+  var_type: string,
+  default_input_unit: string,
+  default_output_unit: string,
+  ctype: string,
+  m: number,
+  d: number,
+  o: number,
+  app_only: boolean,
+  web_only: boolean
+};
+
 export class Variable {
   public id: string;
   public slug: string;
@@ -15,7 +35,7 @@ export class Variable {
   public inputUnit?: Unit;
   public outputUnit?: Unit;
   public decimalPlaces: number;
-  public type: any;
+  public type: string;
   public rawData: any;
   public project: string;
 
@@ -54,5 +74,25 @@ export class Variable {
       }
     }
     return "";
+  }
+
+  public getPatchPayload(): any {
+    let basic: any = {
+      name: this.name
+    };
+    let payload: any = Object.assign(basic, this.mdo.getPatchPayload());
+    if (this.units) {
+      payload['units'] = this.units;
+    }
+    if (this.inputUnit) {
+      payload['input_unit'] = this.inputUnit.slug;
+    }
+    if (this.outputUnit) {
+      payload['output_unit'] = this.outputUnit.slug;
+    }
+    if (this.about) {
+      payload['about'] = this.about;
+    }
+    return payload;
   }
 }
