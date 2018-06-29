@@ -151,7 +151,7 @@ export class Project {
     this.sensorGraphMap[+sg.slug] = sg;
   }
 
-  public getSensorGraph(slug: number): SensorGraph {
+  public getSensorGraph(slug: string): SensorGraph {
     return this.sensorGraphMap[slug];
   }
 
@@ -243,8 +243,8 @@ export class Project {
 
     if (filterByIOInfo) {
       let device = this.getDevice(deviceSlug);
-      if (device !== null){
-        let sg = this.getSensorGraph(+device.sg);
+      if (device){
+        let sg = this.getSensorGraph(device.sensorGraphSlug);
         let lids = sg.getStreamLids();
         let streamIDBase =  ['s', this.gid, device.gid].join('--');
 

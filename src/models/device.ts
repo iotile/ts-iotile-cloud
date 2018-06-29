@@ -12,8 +12,8 @@ export class Device {
   public slug: string;
   public gid: string;
   public label: string;
-  public lat: number | null;
-  public lng: number | null;
+  public lat?: number;
+  public lng?: number;
   public template: string;
   public rawData: any;
   public project: string;
@@ -121,14 +121,14 @@ export abstract class DeviceDelta extends ModelDelta<Device> {
 }
 
 export class DeviceLocationDelta extends DeviceDelta {
-  private oldLat: string;
-  private oldLng: string;
-  private newLat: string;
-  private newLng: string;
+  private oldLat: number;
+  private oldLng: number;
+  private newLat: number;
+  private newLng: number;
 
   public static ClassName: string = "DeviceLocationDelta";
 
-  constructor(oldLat: string, oldLng: string, newLat: string, newLng: string, slug: string, guid?: string) {
+  constructor(oldLat: number, oldLng: number, newLat: number, newLng: number, slug: string, guid?: string) {
     super(DeviceLocationDelta.ClassName, slug, guid);
 
     this.oldLat = oldLat;

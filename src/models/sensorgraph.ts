@@ -2,7 +2,7 @@ import {DisplayWidget} from "./displaywidget";
 import {VariableTemplate} from "./variable";
 
 export interface SensorGraphDictionary {
-  [index: number]: SensorGraph;
+  [index: string]: SensorGraph;
 }
 
 export class SensorGraph {
