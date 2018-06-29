@@ -238,8 +238,8 @@ const dummySg3 = new SensorGraph({
   it('check SensorGraph uiExtra', () => {
     let sg: SensorGraph = dummySg1;
     expect(sg.uiExtra).toBeDefined();
-    expect(sg.getUiExtra()).toBeDefined();
-    expect(sg.getIoInfo()).toBeDefined();
+    expect(sg.getUiExtra('mobile')).toBeDefined();
+    expect(sg.getIoInfo('mobile')).toBeDefined();
   });
 
   it('check SensorGraph deviceSettings Controller1', () => {
@@ -251,22 +251,22 @@ const dummySg3 = new SensorGraph({
     let sg2: SensorGraph = dummySg2;
     expect(sg2.getSettingsTemplate('5001')).toEqual('water-meter-settings');
     expect(sg2.getSettingsController('5001')).toEqual('waterMeterSettingsCtrl');
-    expect(sg2.getUiExtra()).toBeDefined();
+    expect(sg2.getUiExtra('mobile')).toBeDefined();
   });
   it('check SensorGraph deviceSettings Controller3', () => {
     let sg3: SensorGraph = dummySg3;
     expect(sg3.getSettingsTemplate('5001')).toEqual('default-settings');
     expect(sg3.getSettingsController('5001')).toEqual('defaultSettingsCtrl');
-    expect(sg3.getUiExtra()).toBeDefined();
+    expect(sg3.getUiExtra('mobile')).toBeDefined();
   });
   it('check SensorGraph with available templates', () => {
     let sg: SensorGraph = dummySg1;
     expect(sg.displayWidgetTemplates.length).toEqual(4);
     let widget0 = sg.displayWidgetTemplates[0];
-    expect(widget0.show).toEqual(false);
+    expect(widget0.showInApp).toEqual(false);
     expect(widget0.label).toEqual('IO 1');
     let widget3 = sg.displayWidgetTemplates[3];
-    expect(widget3.show).toEqual(true);
+    expect(widget3.showInApp).toEqual(true);
   });
   it('check SensorGraph without available templates', () => {
     let sg2: SensorGraph = dummySg2;

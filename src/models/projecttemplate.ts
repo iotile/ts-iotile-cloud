@@ -3,6 +3,8 @@ export interface ProjectTemplateDictionary {
 }
 
 export class ProjectTemplate {
+    [key: string]: any;
+    
     public id: number;
     public name: string;
     public slug: string;

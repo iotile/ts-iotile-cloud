@@ -17,6 +17,8 @@ export interface SchemaKeyDictionary {
 }
 
 export class VarType {
+  [key: string]: any;
+  
   public name: string;
   public slug: string;
   public rawData: any;

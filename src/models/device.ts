@@ -8,6 +8,8 @@ export interface DeviceDictionary {
 }
 
 export class Device {
+  [key: string]: any;
+
   public id: number;
   public slug: string;
   public gid: string;

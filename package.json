@@ -67,13 +67,15 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "axios-mock-adapter": "^1.15.0",
     "iotile-common": "0.0.9",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.merge": "^4.6.1",
     "typescript-logging": "^0.6.2"
   },
   "devDependencies": {
     "@types/jest": "^22.0.0",
     "@types/node": "^9.3.0",
-    "axios-mock-adapter": "^1.15.0",
     "cz-conventional-changelog": "^2.1.0",
     "gh-pages": "^1.0.0",
     "jest": "^22.0.2",

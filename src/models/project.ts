@@ -12,6 +12,8 @@ import {ArgumentError} from "iotile-common";
 import { ProjectTemplate, ProjectTemplateDictionary } from "./projecttemplate";
 
 export class Project {
+  [key: string]: any;
+  
   public id: string;
   public gid: string;
   public name: string;

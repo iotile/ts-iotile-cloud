@@ -2,8 +2,9 @@
  * Mock data for two projects that can be used to test the IOTile Companion App.
  */
 
-import { IOTileCloud, Stream, Device, Project, Variable, SensorGraph, VarType, ProjectTemplate }
-    from "../../src";
+import {Stream, Device, Project, Variable, SensorGraph, VarType, ProjectTemplate }
+    from "../models";
+import {IOTileCloud} from "../cloud/iotile-cloud-serv";
 import {ArgumentError, delay} from "iotile-common";
 let clonedeep = require("lodash.clonedeep");
 let MockAdapter = require("axios-mock-adapter");
@@ -17,7 +18,7 @@ export enum Response {
 
 export class MockCloud 
 {
-    private MockAdapter;
+    private MockAdapter: any;
     private cloud: IOTileCloud;
     public projects: Project[];
     public devices: Device[];
@@ -44,38 +45,38 @@ export class MockCloud
 
         this.projects = [new Project(soil_proj), new Project(water_proj)];
         
-        let deviceList = [];
+        let deviceList: Array<Device> = [];
         devices.forEach(element => {
             deviceList.push(new Device(element));
         });
 
         this.devices = deviceList;
 
-        let varList = [];
+        let varList : Array<Variable> = [];
         variables.forEach(element => {
             varList.push(new Variable(element));
         })
         this.variables = varList;
 
-        let streamList = [];
+        let streamList : Array<Stream> = [];
         streams.forEach(element => {
             streamList.push(new Stream(element));
         })
         this.streams = streamList;
 
-        let sgList = [];
+        let sgList : Array<SensorGraph> = [];
         sg.forEach(element => {
             sgList.push(new SensorGraph(element));
         })
         this.sensorGraphs = sgList;
 
-        let vartypeList = [];
+        let vartypeList : Array<VarType> = [];
         vartypes.forEach(element => {
             vartypeList.push(new VarType(element));
         })
         this.varTypes = vartypeList;
 
-        let pts = [];
+        let pts : Array<ProjectTemplate> = [];
         project_templates.forEach(element => {
             pts.push(new ProjectTemplate(element));
         })
@@ -93,7 +94,7 @@ export class MockCloud
         return clonedeep(obj);
     }
 
-    private buildParamResponse(getType: string, paramType: string, param) {
+    private buildParamResponse(getType: string, paramType: string, param: string) {
         let retrieved = [];
         switch(getType){
             case 'project':

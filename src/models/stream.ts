@@ -33,6 +33,8 @@ export interface SerializedStream {
   }
 
   export class Stream {
+    [key: string]: any;
+    
     public id: string;
     public slug: string;
     public variable: string;

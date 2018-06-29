@@ -22,6 +22,8 @@ export interface VariableTemplate {
 };
 
 export class Variable {
+  [key: string]: any;
+  
   public id: string;
   public slug: string;
   public lid: number;
