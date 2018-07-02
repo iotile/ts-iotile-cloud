@@ -1059,7 +1059,10 @@ export class IOTileCloud {
           method: 'POST',
           url: resp['url'],
           data: formData,
-          headers: {'Content-Type': undefined, 'Authorization': undefined}
+          transformRequest: [(data: any, headers: any) => {
+            delete headers.common.Authorization
+            return data
+          }]
         });
         
         if (s3Response.status == 204){
