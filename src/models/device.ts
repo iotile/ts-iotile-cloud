@@ -14,25 +14,28 @@ export class Device {
   public slug: string;
   public gid: string;
   public label: string;
-  public lat?: number;
-  public lng?: number;
   public template: string;
   public rawData: any;
   public project: string;
-  public externalId: string;
-  public state: string;
-  public busy: boolean = false;
-  public sensorGraphSlug: string;
-  public sg?: SensorGraph;
   public propertyMap: PropertyDictionary;
   public properties: Array<Property>;
-  public dataBlock?: DataBlock;
+  public sensorGraphSlug: string;
 
   public isModified: boolean;
   public active: boolean;
 
   // drifterMode is for disabling permanent data reports
   public drifterMode: boolean;
+
+  public org?: string;
+  public externalId?: string;
+  public state?: string;
+  public lat?: number;
+  public lng?: number;
+  public busy: boolean = false;
+  public sg?: SensorGraph;
+  
+  public dataBlock?: DataBlock;
 
   constructor(data: any = {}) {
     this.id = data.id;
@@ -45,13 +48,8 @@ export class Device {
     this.drifterMode = data.drifter_mode || false;
     this.isModified = false;
     this.active = data.active || true;
-    this.state = data.state;
-    this.externalId = data.external_id;
-
-    this.lat = data.lat || null;
-    this.lng = data.lon || null;
-    this.lat = parseFloat(data.lat || 0);
-    this.lng = parseFloat(data.lon || 0);
+    this.state = data.state || undefined;
+    this.externalId = data.external_id || undefined;
     this.sensorGraphSlug = data.sg;
 
     this.properties = [];
@@ -59,6 +57,18 @@ export class Device {
 
     if ('busy' in data) {
       this.busy = data.busy;
+    }
+
+    if ('org' in data){
+      this.org = data.org;
+    }
+
+    if ('lat' in data && data.lat !== null){
+      this.lat = parseFloat(data.lat || 0);
+    }
+
+    if ('lon' in data && data.lon !== null){
+      this.lon = parseFloat(data.lon || 0);
     }
   }
 
@@ -108,13 +118,17 @@ export class Device {
   }
 
   public getStateDisplay(): string {
-    let factory: any = {
-      'N0': 'Available',
-      'N1': 'Active',
-      'B0': 'Resetting',
-      'B1': 'Archiving'
-    };
-    return factory[this.state];
+    if (this.state){
+      let factory: any = {
+        'N0': 'Available',
+        'N1': 'Active',
+        'B0': 'Resetting',
+        'B1': 'Archiving'
+      };
+      return factory[this.state];
+    } else {
+      return "";
+    }
   }
 }
 

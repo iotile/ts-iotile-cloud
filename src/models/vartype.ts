@@ -25,7 +25,7 @@ export class VarType {
   public unitFullName: string;
   public availableInputUnits: Array<Unit> = [];
   public availableOutputUnits: Array<Unit> = [];
-  public schema?: SchemaKeyDictionary;
+  public schema: SchemaKeyDictionary = {};
 
   constructor(data: any = {}) {
     this.name = data.name;
@@ -61,8 +61,8 @@ export class VarType {
     return this.rawData;
   }
 
-  public getInputUnitForSlug(slug: string): Unit | undefined {
-    let resultingUnit;
+  public getInputUnitForSlug(slug: string): Unit | null {
+    let resultingUnit = null;
 
     this.availableInputUnits.forEach(u => {
       if (u.slug === slug) {
@@ -73,8 +73,8 @@ export class VarType {
     return resultingUnit;
   }
 
-  public getOutputUnitForSlug(slug: string): Unit | undefined {
-    let resultingUnit;
+  public getOutputUnitForSlug(slug: string): Unit | null {
+    let resultingUnit = null;
 
     this.availableOutputUnits.forEach(u => {
       if (u.slug === slug) {

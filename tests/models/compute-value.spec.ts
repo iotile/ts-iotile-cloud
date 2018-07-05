@@ -103,7 +103,7 @@ describe('ComputeValue', () => {
       "timestamp": "2016-09-13T20:29:13.825000Z",
       "int_value": 20,
     });
-    point = proj.processDataPoint(stream, point);
+    point = proj.processDataPoint(stream, point); //undefined
     expect(point.value).toBe(7.5);
     expect(point.outValue).toBe(7.5);
     expect(point.displayValue).toBe('7.50');
@@ -121,7 +121,7 @@ describe('ComputeValue', () => {
       "value": 10.0,
       "display_value": "4"
     });
-    point = proj.processDataPoint(stream, point);
+    point = proj.processDataPoint(stream, point); //undefined
     expect(point.value).toBe(35);
     expect(point.outValue).toBe(7);
     expect(point.displayValue).toBe('7.00');

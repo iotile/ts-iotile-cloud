@@ -8,7 +8,7 @@ import {DataPoint} from "./datapoint";
 import {Unit} from "./unit";
 import {Org} from "./org";
 import {Mdo} from "./mdo";
-import {ArgumentError} from "iotile-common";
+import {ArgumentError, DataCorruptedError, InvalidDataError} from "iotile-common";
 import { ProjectTemplate, ProjectTemplateDictionary } from "./projecttemplate";
 
 export class Project {
@@ -33,7 +33,7 @@ export class Project {
   public sensorGraphMap: SensorGraphDictionary;
   public devices: Array<Device>;
   private deviceMap: DeviceDictionary;
-  private streams: Array<Stream>;
+  public streams: Array<Stream>;
   private streamMap: StreamDictionary;
   public overlay: ProjectOverlay;
   public properties: Array<Property>;
@@ -144,13 +144,13 @@ export class Project {
   public addSensorGraphs(sg: Array<SensorGraph>): void {
     this.sensorGraphs = sg;
     this.sensorGraphs.forEach(sg => {
-      this.sensorGraphMap[+sg.slug] = sg;
+      this.sensorGraphMap[sg.slug] = sg;
     });
   }
 
   public addSensorGraph(sg: SensorGraph): void {
     this.sensorGraphs.push(sg);
-    this.sensorGraphMap[+sg.slug] = sg;
+    this.sensorGraphMap[sg.slug] = sg;
   }
 
   public getSensorGraph(slug: string): SensorGraph {
@@ -338,27 +338,27 @@ export class Project {
     return result;
   }
 
-  public getInputUnits(stream: Stream): Unit | undefined {
+  public getInputUnits(stream: Stream): Unit | null {
     if (stream.inputUnit) {
       return stream.inputUnit;
     }
     
     let variable = this.variableMap[stream.variable];
     if (!variable) {
-      return undefined;
+      return null;
     }
 
     return variable.inputUnit;
   }
 
-  public getOutputUnits(stream: Stream): Unit | undefined{
+  public getOutputUnits(stream: Stream): Unit | null {
     if (stream.outputUnit) {
       return stream.outputUnit;
     }
     
     let variable = this.variableMap[stream.variable];
     if (!variable) {
-      return undefined;
+      return null;
     }
 
     return variable.outputUnit;
@@ -416,10 +416,13 @@ export class Project {
    *
    * @returns {DataPoint} Modified dataPoint
    */
-  public processDataPoint(stream: Stream, dataPoint: DataPoint) {
-    if (dataPoint.rawValue && dataPoint.value){
-      dataPoint.value = this.computeInputValue(stream, dataPoint.rawValue, undefined);
-      dataPoint.outValue = this.computeOutputValue(stream, dataPoint.value);
+  public processDataPoint(stream: Stream, dataPoint: DataPoint): DataPoint {
+      if (dataPoint.rawValue){
+        dataPoint.value = this.computeInputValue(stream, dataPoint.rawValue, undefined);
+      } 
+      if (dataPoint.value){
+        dataPoint.outValue = this.computeOutputValue(stream, dataPoint.value);
+      }
       // Figure out units for displayValue field
       let outUnit = stream.outputUnit;
       let variable: Variable | undefined;
@@ -430,17 +433,20 @@ export class Project {
           outUnit = variable.outputUnit;
         }
       }
-      if (outUnit) {
-        dataPoint.displayValue = dataPoint.outValue.toFixed(outUnit.decimalPlaces);
-      } else {
-        if (variable) {
-          dataPoint.displayValue = dataPoint.outValue.toFixed(variable.decimalPlaces);
+      if (dataPoint.outValue && dataPoint.value){
+        if (outUnit) {
+          dataPoint.displayValue = dataPoint.outValue.toFixed(outUnit.decimalPlaces);
         } else {
-          dataPoint.displayValue = dataPoint.value.toString();
+          if (variable) {
+            dataPoint.displayValue = dataPoint.outValue.toFixed(variable.decimalPlaces);
+          } else {
+            dataPoint.displayValue = dataPoint.value.toString();
+          }
         }
-      }
-
-      return dataPoint;
+  
+        return dataPoint;
+      } else {
+      throw new InvalidDataError('Error processing data point', 'Data point is missing value');
     }
   };
 

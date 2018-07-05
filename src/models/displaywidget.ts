@@ -49,11 +49,43 @@ export class StatefulSwitchArgs {
   }
 }
 
+export class WebArgs {
+  public options: WebOptions | any;
+
+  constructor(data: any = {}){
+    this.options = new WebOptions(data.options) || data.options;
+  }
+}
+
+export class WebOptions {
+  public tabViewId: string;
+  public ngComponent: string;
+  public seriesGroup: string;
+  public downloadable: boolean;
+  public chart?: any;
+  public ngComponentInputs?: any;
+  
+  constructor(data: any = {}){
+    this.tabViewId = data.tabViewId;
+    this.ngComponent = data.ngComponent;
+    this.seriesGroup = data.seriesGroup;
+    this.downloadable = data.downloadable || false;
+
+    if ('chart' in data){
+      this.chart = data.chart;
+    }
+
+    if ('ngComponentInputs' in data){
+      this.ngComponentInputs = data.ngComponentInputs;
+    }
+  }
+}
+
 export class DisplayWidget {
   public label: string;
   public lid: string;
   public type: string;
-  public args: RPCArgs | StatefulRPCArgs| StatefulSwitchArgs | null;
+  public args: RPCArgs | StatefulRPCArgs| StatefulSwitchArgs | WebArgs | null;
   public varType: string;
   public derivedType: string;
   public showInApp: boolean;
@@ -75,6 +107,8 @@ export class DisplayWidget {
       this.args = new StatefulRPCArgs(data.args);
     } else if ('rpcs' in data.args){
       this.args = new StatefulSwitchArgs(data.args);
+    } else if ('web' in data.args && this.showInWeb){
+      this.args = new WebArgs(data.args.web);
     } else {
       this.args = new RPCArgs(data.args);
     }

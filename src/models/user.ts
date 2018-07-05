@@ -9,7 +9,7 @@ export class User {
     public isStaff: boolean = false;
     public email: string;
     public avatarUrl?: string;
-    public creationDate: string;
+    public creationDate: Date;
     public token: string;
     public id: string;
     private orgRoles: {[key: string]: Membership}
@@ -19,7 +19,6 @@ export class User {
         this.username = data.username || "";
         this.name = data.name || "";
         this.email = data.email || "";
-        this.creationDate = data.created_at || Date.now();
         this.isStaff = data.is_staff || false;
         this.id = data.id || "";
         this.orgRoles = data.orgRoles || {};
@@ -30,6 +29,12 @@ export class User {
 
         if (data.avatar) {
             this.avatarUrl = data.avatar.thumbnail;
+        }
+
+        if (data.created_at) {
+            this.creationDate = new Date(data.created_at);
+        } else {
+            this.creationDate = new Date();
         }
 
         this.token = data.token || token || null;
@@ -64,7 +69,7 @@ export class User {
         return {user, server};
       }
 
-    public getFullName() {
+    public getFullName(): string {
         let name: string = "";
         if (this.name) {
             name = this.name;

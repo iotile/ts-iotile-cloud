@@ -2,6 +2,8 @@ import {Stream} from "../../src/models/stream";
 
 describe('StreamTest', () => {
   const dummyStream0 = new Stream({
+    id: "b0c03d58-47db-4a74-afe2-bb06a3bed083",
+    project_id: "ece4441c-b17a-4e3c-94dc-8380caaab6ab",
     project: "p--0000-0010",
     device: "d--0000-0000-0000-00ae",
     variable: "v--0000-0010--5001",
@@ -15,16 +17,20 @@ describe('StreamTest', () => {
       "d": 100,
       "o": 0.0
     },
+    var_type: null,
     multiplication_factor: 1,
     division_factor: 10,
     offset: 5.0,
     data_label: 'foo',
+    data_type: "00",
     org: "arch-internal",
     created_on: "2016-11-16T16:42:54.312425Z",
     slug: "s--0000-0010--0000-0000-0000-00ae--5001"
   });
 
   const dummyStream1 = new Stream({
+    id: "b0c03d58-47db-4a74-afe2-bb06a3bed083",
+    project_id: "ece4441c-b17a-4e3c-94dc-8380caaab6ab",
     project: "p--0000-0010",
     device: "d--0000-0000-0000-00ae",
     raw_value_format: "<L",
@@ -41,6 +47,7 @@ describe('StreamTest', () => {
     division_factor: 10,
     offset: 5.0,
     data_label: 'foo',
+    data_type: "00",
     org: "arch-internal",
     created_on: "2016-11-16T16:42:54.312425Z",
     slug: "s--0000-0010--0000-0000-0000-00ae--5001"

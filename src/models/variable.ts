@@ -34,8 +34,8 @@ export class Variable {
   public sysVar: boolean;
   public about: string;
   public mdo: Mdo;
-  public inputUnit?: Unit;
-  public outputUnit?: Unit;
+  public inputUnit: Unit | null = null;
+  public outputUnit: Unit | null = null;
   public decimalPlaces: number;
   public type: string;
   public rawData: any;

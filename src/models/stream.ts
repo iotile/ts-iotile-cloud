@@ -50,15 +50,15 @@ export interface SerializedStream {
     public createdOn: string;
     public type: string;
     public projectId: string;
-
+    
     public mdo: Mdo;
-    public inputUnit?: Unit;
-    public outputUnit?: Unit;
+    public inputUnit: Unit | null = null;
+    public outputUnit: Unit | null = null;
 
     public mdoType?: string;
     public dataLabel?: string;
 
-    public data?: Array<DataPoint>;
+    public data: Array<DataPoint>;
     public stats?: Stats;
 
     public isModified?: boolean;
@@ -80,8 +80,8 @@ export interface SerializedStream {
       this.projectId = data.project_id;
 
       this.createdOn = data.created_on;
-      this.type = data.type;
-      this.enabled = data.enabled;
+      this.type = data.data_type;
+      this.enabled = data.enabled || true;
 
       //We always clear isModified since it will be set by the ProjectOverlay on an already built object
       this.isModified = false;
@@ -122,8 +122,8 @@ export interface SerializedStream {
       this.projectId = data.project_id;
 
       this.createdOn = data.created_on;
-      this.type = data.type;
-      this.enabled = data.enabled;
+      this.type = data.data_type;
+      this.enabled = data.enabled || true;
 
       //We always clear isModified since it will be set by the ProjectOverlay on an already built object
       this.isModified = false;
@@ -131,8 +131,16 @@ export interface SerializedStream {
       this.data = [];
 
       this.dataLabel = data.data_label;
-      this.inputUnit = undefined;
-      this.outputUnit = undefined;
+      if (data.block) {
+        this.block = data.block;
+      }
+      if (data.var_name) {
+        this.variableName = data.var_name;
+      }
+      if (data.var_type) {
+        this.variableType = data.var_type;
+      }
+      this.variableLocalId = data.var_lid;
 
       if (data.input_unit) {
         this.inputUnit = new Unit(data.input_unit);
@@ -334,11 +342,11 @@ export interface SerializedStream {
    * may be null if they were never initialized.
    */
   export class StreamUnitsDelta extends StreamDelta {
-    private oldUnit: Unit | undefined;
+    private oldUnit: Unit | null;
     private newUnit: Unit;
     private type: UnitType;
 
-    constructor(oldUnits: Unit | undefined, newUnits: Unit, type: UnitType, slug: string, classname: string, guid?: string) {
+    constructor(oldUnits: Unit | null, newUnits: Unit, type: UnitType, slug: string, classname: string, guid?: string) {
       super(classname, slug, guid);
 
       this.oldUnit = oldUnits;
@@ -366,7 +374,7 @@ export interface SerializedStream {
           unitSlug = this.getSlug(stream.outputUnit);
         }
 
-        let oldSlug;
+        let oldSlug = null;
         if (this.oldUnit){
           oldSlug = this.getSlug(this.oldUnit);
         }
@@ -427,12 +435,12 @@ export interface SerializedStream {
   export class StreamInputUnitsDelta extends StreamUnitsDelta {
     public static ClassName: string = "StreamInputUnitsDelta";
 
-    constructor(oldUnits: Unit|undefined, newUnits: Unit, slug: string, guid?: string) {
+    constructor(oldUnits: Unit|null, newUnits: Unit, slug: string, guid?: string) {
       super(oldUnits, newUnits, UnitType.Input, slug, StreamInputUnitsDelta.ClassName, guid);
     }
 
     public static Deserialize(guid: string, slug: string, serializedArgs: any) : StreamInputUnitsDelta {
-      let oldUnit;
+      let oldUnit = null;
       if (serializedArgs.oldUnit) {
         oldUnit = new Unit(serializedArgs.oldUnit);
       }
@@ -446,12 +454,12 @@ export interface SerializedStream {
   export class StreamOutputUnitsDelta extends StreamUnitsDelta {
     public static ClassName: string = "StreamOutputUnitsDelta";
 
-    constructor(oldUnits: Unit|undefined, newUnits: Unit, slug: string, guid?: string) {
+    constructor(oldUnits: Unit|null, newUnits: Unit, slug: string, guid?: string) {
       super(oldUnits, newUnits, UnitType.Output, slug, StreamOutputUnitsDelta.ClassName, guid);
     }
 
     public static Deserialize(guid: string, slug: string, serializedArgs: any) : StreamOutputUnitsDelta {
-      let oldUnit;
+      let oldUnit = null;
       if (serializedArgs.oldUnit) {
         oldUnit = new Unit(serializedArgs.oldUnit);
       }
