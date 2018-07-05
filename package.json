@@ -5,7 +5,7 @@
   "main": "dist/iotile-cloud.umd.js",
   "types": "dist/types/index.d.ts",
   "module": "dist/iotile-cloud.es5.js",
-  "repository": "https://github.com/iotile/iotile-cloud",
+  "repository": "https://github.com/iotile/ts-iotile-cloud",
   "license": "MIT",
   "keywords": [
     "typescript",
@@ -14,7 +14,8 @@
     "iotile",
     "iotile-cloud",
     "iot",
-    "axios"
+    "axios",
+    "typescript-logging"
   ],
   "scripts": {
     "lint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
@@ -29,7 +30,7 @@
   "jest": {
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "tsconfig.jest.json"
+        "tsConfigFile": "tsconfig.json"
       }
     },
     "transform": {
@@ -53,10 +54,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 30,
-        "functions": 50,
-        "lines": 50,
-        "statements": 50
+        "branches": 50,
+        "functions": 55,
+        "lines": 65,
+        "statements": 65
       }
     },
     "collectCoverage": true,

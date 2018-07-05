@@ -28,7 +28,7 @@ describe('StreamTest', () => {
     slug: "s--0000-0010--0000-0000-0000-00ae--5001"
   });
 
-  const dummyStream1 = new Stream({
+  const dummyStream01 = new Stream({
     id: "b0c03d58-47db-4a74-afe2-bb06a3bed083",
     project_id: "ece4441c-b17a-4e3c-94dc-8380caaab6ab",
     project: "p--0000-0010",
@@ -116,7 +116,7 @@ describe('StreamTest', () => {
     let stream: Stream = dummyStream0;
     expect(stream.getLocalVarId()).toEqual('5001');
 
-    expect(dummyStream1.getLocalVarId()).toEqual('');
+    expect(dummyStream01.getLocalVarId()).toEqual('');
   });
 
   it('should patch json object with changes', () => {

@@ -3,60 +3,32 @@ import {Property} from "../../src/models/property";
 import {DataBlock} from "../../src/models/datablock";
 
 describe('DeviceTest', () => {
+  let dev: Device;
 
-  const dummyDevice1 = new Device({
-    "id": 129,
-    "slug": "d--0000-0000-0000-0081",
-    "gid": "0000-0000-0000-0081",
-    "label": "The Device",
-    "active": true,
-    "state": "N1",
-    "busy": true,
-    "project": "b83c6bd6-0f3f-4890-a390-d9d29d142966",
-    "org": "my-org",
-    "template": "1d1p2bt101-v0-1-0",
-    "firmware_versions": [],
-    "sg": "single-soil-moisture-v1-1-0",
-    "lat": "2.345676",
-    "lon": "-12.12345",
-    "created_on": "2016-12-05T21:20:53.500516Z"
+  beforeEach(function () {
+    dev = new Device({
+      "id": 129,
+      "slug": "d--0000-0000-0000-0081",
+      "gid": "0000-0000-0000-0081",
+      "label": "The Device",
+      "active": true,
+      "state": "N1",
+      "busy": true,
+      "project": "b83c6bd6-0f3f-4890-a390-d9d29d142966",
+      "org": "my-org",
+      "template": "1d1p2bt101-v0-1-0",
+      "firmware_versions": [],
+      "sg": "single-soil-moisture-v1-1-0",
+      "lat": "2.345676",
+      "lon": "-12.12345",
+      "created_on": "2016-12-05T21:20:53.500516Z"
+    });
+
   });
 
-  const dummyProperties1: Array<Property> = [
-    new Property({
-      "id": 8,
-      "name": "cargoDescription",
-      "value": "Statement or description of the cargo."
-    }),
-    new Property({
-        "id": 4,
-        "name": "loadingType",
-        "value": "Forklift"
-    }),
-    new Property({
-        "id": 1,
-        "name": "shipFrom",
-        "value": "Mountain View, CA"
-    }),
-    new Property({
-        "id": 2,
-        "name": "shipTo",
-        "value": "Seoul, South Korea"
-    }),
-    new Property({
-        "id": 3,
-        "name": "shipVia",
-        "value": "Airplane"
-    }),
-    new Property({
-        "id": 7,
-        "name": "transportType",
-        "value": "Air"
-    })
-  ];
 
   it('check basic device', () => {
-    let dev: Device = dummyDevice1;
+    // let dev: Device = dummyDevice1;
     expect(dev.id).toEqual(129);
     expect(dev.slug).toEqual('d--0000-0000-0000-0081');
     expect(dev.sensorGraphSlug).toEqual('single-soil-moisture-v1-1-0');
@@ -64,14 +36,14 @@ describe('DeviceTest', () => {
   });
 
   it('check device state', () => {
-    let dev: Device = dummyDevice1;
+    // let dev: Device = dummyDevice1;
     expect(dev.busy).toBeTruthy();
     expect(dev.state).toEqual('N1');
     expect(dev.getStateDisplay()).toEqual('Active');
   });
 
   it('check payload generation', () => {
-    let dev: Device = dummyDevice1;
+    // let dev: Device = dummyDevice1;
     let payload: any = dev.getPatchPayload();
     expect(payload.label).toEqual('The Device');
     expect(payload.lat).toEqual(2.345676);
@@ -79,7 +51,7 @@ describe('DeviceTest', () => {
   });
 
   it('it check device properties', () => {
-    let dev: Device = dummyDevice1;
+    // let dev: Device = dummyDevice1;
     let properties: Array<Property> = [];
 
     let dummyProperty1: Property = new Property({

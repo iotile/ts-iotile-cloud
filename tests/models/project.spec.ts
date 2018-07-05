@@ -5,7 +5,7 @@ import {Variable} from "../../src/models/variable";
 import {Property} from "../../src/models/property";
 
 describe('ProjectTest', () => {
-  const dummyProject: Project = new Project({
+  const dummyProject0: Project = new Project({
     "id": "84e3869d-1fdb-4203-9b69-18b417e2b0e0",
     "name": "My Project",
     "slug": "p--0000-0012",
@@ -25,7 +25,7 @@ describe('ProjectTest', () => {
   });
   
   it('check project fields', () => {
-    let proj: Project = dummyProject;
+    let proj: Project = dummyProject0;
     expect(proj.id).toEqual('84e3869d-1fdb-4203-9b69-18b417e2b0e0');
     expect(proj.gid).toEqual('0000-0012');
     expect(proj.name).toEqual('My Project');
@@ -58,7 +58,7 @@ describe('ProjectTest', () => {
   });
 
   it('check project devices', () => {
-    let proj: Project = dummyProject;
+    let proj: Project = dummyProject0;
     let devices: Array<Device> = [];
     let device: Device = new Device({
       "id": 129,
@@ -79,7 +79,7 @@ describe('ProjectTest', () => {
   });
 
   it('check project streams', () => {
-    let proj: Project = dummyProject;
+    let proj: Project = dummyProject0;
     let streams: Array<Stream> = [];
     let stream: Stream = new Stream({
       "project": "p--0000-0001",
@@ -116,7 +116,7 @@ describe('ProjectTest', () => {
   });
 
   it('check project variables', () => {
-    let proj: Project = dummyProject;
+    let proj: Project = dummyProject0;
     let variables: Array<Variable> = [];
     let v: Variable = new Variable({
       "id": '5001',
@@ -137,7 +137,7 @@ describe('ProjectTest', () => {
   });
 
   it('it check project properties', () => {
-    let proj: Project = dummyProject;
+    let proj: Project = dummyProject0;
     let properties: Array<Property> = [];
 
     let dummyProperty1: Property = new Property({

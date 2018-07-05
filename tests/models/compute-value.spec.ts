@@ -47,7 +47,7 @@ describe('ComputeValue', () => {
   });
 
 
-  const dummyStream0 = new Stream({
+  const dummyStream = new Stream({
     project: "p--0000-0010",
     device: "d--0000-0000-0000-00ae",
     variable: "v--0000-0010--5001",
@@ -97,7 +97,7 @@ describe('ComputeValue', () => {
     let proj: Project = dummyProject;
     let variable: Variable = dummyVariable0;
     proj.addVariable(variable);
-    let stream: Stream = dummyStream0;
+    let stream: Stream = dummyStream;
     let point: DataPoint = new DataPoint({
       "type": "Num",
       "timestamp": "2016-09-13T20:29:13.825000Z",
@@ -126,6 +126,6 @@ describe('ComputeValue', () => {
     expect(point.outValue).toBe(7);
     expect(point.displayValue).toBe('7.00');
 
-    expect(proj.computeValue(stream, point)).toBe(2.0);
+    expect(proj.computeValue(stream, point)).toBe(7.0);
   });
 });
