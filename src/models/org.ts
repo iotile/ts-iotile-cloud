@@ -24,6 +24,9 @@ export class Org {
   constructor(data: any = {}) {
     this.slug = data.slug;
     this.name = data.name;
+    this.createdBy = data.created_by;
+    this.createdOn = new Date(data.created_on);
+
     this.rawData = data;
     if (data.about) {
       this.about = data.about;

@@ -31,7 +31,7 @@ export class Device {
   public externalId?: string;
   public state?: string;
   public lat?: number;
-  public lng?: number;
+  public lon?: number;
   public busy: boolean = false;
   public sg?: SensorGraph;
   
@@ -64,11 +64,11 @@ export class Device {
     }
 
     if ('lat' in data && data.lat !== null){
-      this.lat = parseFloat(data.lat || 0);
+      this.lat = parseFloat(data.lat);
     }
 
     if ('lon' in data && data.lon !== null){
-      this.lon = parseFloat(data.lon || 0);
+      this.lon = parseFloat(data.lon);
     }
   }
 
@@ -78,7 +78,7 @@ export class Device {
     result.label = this.label;
     result.drifter_mode = this.drifterMode;
     result.lat = this.lat;
-    result.lon = this.lng;
+    result.lon = this.lon;
 
     return result
   }
@@ -90,8 +90,8 @@ export class Device {
     if (this.lat) {
       payload.lat = this.lat;
     }
-    if (this.lng) {
-      payload.lon = this.lng;
+    if (this.lon) {
+      payload.lon = this.lon;
     }
     payload.active = this.active;
 
@@ -154,9 +154,9 @@ export class DeviceLocationDelta extends DeviceDelta {
   }
 
   public check(device: Device) : DeltaStatus {
-    if (device.lat === this.newLat && device.lng === this.newLng) {
+    if (device.lat === this.newLat && device.lon === this.newLng) {
       return DeltaStatus.Outdated;
-    } else if (device.lat === this.oldLat && device.lng === this.oldLng) {
+    } else if (device.lat === this.oldLat && device.lon === this.oldLng) {
       return DeltaStatus.Applies;
     } else {
       return DeltaStatus.Conflicted;
@@ -165,7 +165,7 @@ export class DeviceLocationDelta extends DeviceDelta {
 
   public apply(device: Device) {
     device.lat = this.newLat;
-    device.lng = this.newLng;
+    device.lon = this.newLng;
   }
 
   public getPatch() {

@@ -38,27 +38,26 @@ export interface SerializedStream {
     public id: string;
     public slug: string;
     public variable: string;
-    public block?: string;
-    public variableName?: string;
-    public variableType?: string;
-    public variableLocalId?: number;
     public device: string;
     public project: string;
     public enabled: boolean = true;
-    public template?: string;
-    public org?: string;
     public createdOn: string;
     public type: string;
     public projectId: string;
-    
+    public data: Array<DataPoint>;
     public mdo: Mdo;
     public inputUnit: Unit | null = null;
     public outputUnit: Unit | null = null;
 
+    public template?: string;
+    public org?: string;
+    public block?: string;
+    public variableName?: string;
+    public variableType?: string;
+    public variableLocalId?: number;
+
     public mdoType?: string;
     public dataLabel?: string;
-
-    public data: Array<DataPoint>;
     public stats?: Stats;
 
     public isModified?: boolean;
@@ -358,7 +357,7 @@ export interface SerializedStream {
       }
     }
 
-    private getSlug(unit: Unit) {
+    private getSlug(unit: Unit | null) {
       if (unit == null) {
         return null;
       }
@@ -367,30 +366,24 @@ export interface SerializedStream {
     }
 
     public check(stream: Stream): DeltaStatus {
-      if (stream.inputUnit && stream.outputUnit){
-        let unitSlug = this.getSlug(stream.inputUnit);
+      let unitSlug = this.getSlug(stream.inputUnit);
       
-        if (this.type == UnitType.Output) {
-          unitSlug = this.getSlug(stream.outputUnit);
-        }
+      if (this.type == UnitType.Output) {
+        unitSlug = this.getSlug(stream.outputUnit);
+      }
 
-        let oldSlug = null;
-        if (this.oldUnit){
-          oldSlug = this.getSlug(this.oldUnit);
-        }
-        let newSlug = this.getSlug(this.newUnit);
+      let oldSlug = this.getSlug(this.oldUnit);
+      let newSlug = this.getSlug(this.newUnit);
 
-        if (unitSlug === newSlug) {
-          return DeltaStatus.Outdated;
-        } else if (unitSlug === oldSlug) {
-          return DeltaStatus.Applies;
-        }else {
-          return DeltaStatus.Conflicted;
-        }
-      } else {
+      if (unitSlug === newSlug) {
+        return DeltaStatus.Outdated;
+      } else if (unitSlug === oldSlug) {
+        return DeltaStatus.Applies;
+      }else {
         return DeltaStatus.Conflicted;
       }
     }
+
 
     /*
      * If the old units are null we need to create them from scratch

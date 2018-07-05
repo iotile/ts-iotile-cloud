@@ -110,17 +110,33 @@ export class Mdo {
   }
 
   public setFromFactor(factor: number, invert: boolean): void {
+    let multiplication_factor: number = 1;
+    let newFactor: number;
+    if (factor < MAX_INT32) {
+      // console.debug('factor is ' + factor);
       let decimals: number = this._retr_dec(factor);
-      let multiplication_factor: number = Math.pow(10, decimals);
+      // console.debug('Decimals is ' + decimals);
+      multiplication_factor = Math.pow(10, decimals);
+      // console.debug('multiplication_factor is ' + multiplication_factor);
+      newFactor = Math.round(factor * multiplication_factor);
 
-      this.o = 0.0;
-      if (invert) {
-        this.d = Math.round(factor * multiplication_factor);
-        this.m = multiplication_factor;
-      } else {
-        this.m = Math.round(factor * multiplication_factor);
-        this.d = multiplication_factor;
+      while (newFactor >= MAX_INT32) {
+        // console.debug('factor is too large: ' + newFactor);
+        newFactor = Math.round(newFactor / 10);
+        multiplication_factor = Math.round(multiplication_factor / 10);
       }
+    } else {
+      newFactor = MAX_INT32;
+    }
+
+    this.o = 0.0;
+    if (invert) {
+      this.d = newFactor;
+      this.m = multiplication_factor;
+    } else {
+      this.m = newFactor;
+      this.d = multiplication_factor;
+    }
   }
 
   public eq(): string {

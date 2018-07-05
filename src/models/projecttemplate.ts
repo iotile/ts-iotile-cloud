@@ -9,7 +9,7 @@ export class ProjectTemplate {
     public name: string;
     public slug: string;
     public version: string;
-    public extra: any;
+    public extraData: any;
     public org: string;
     public rawData: any;
 
@@ -18,12 +18,12 @@ export class ProjectTemplate {
         this.name = data.name;
         this.slug = data.slug;
         this.version = data.version;
-        this.extra = data.extra_data;
+        this.extraData = data.extra_data;
         this.org = data.org;
         this.rawData = data;
 
-        if (!this.extra){
-            this.extra = {
+        if (!this.extraData){
+            this.extraData = {
                 mobile: {
                     projectTemplateSlug: "default",
                     waveform: false
