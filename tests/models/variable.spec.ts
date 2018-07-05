@@ -90,6 +90,18 @@ describe('VariableTest', () => {
     expect(v.outputUnit.mdo.o).toEqual(0.0);
   });
 
+  it('check variable.getPatchPayload', () => {
+    let v: Variable = dummyVariable;
+    let payload: any = v.getPatchPayload();
+    expect(payload.name).toEqual('IO 1');
+    expect(payload.units).toEqual('Gallons');
+    expect(payload.input_unit).toEqual('in--water-meter-volume--gallons');
+    expect(payload.output_unit).toEqual('out--water-meter-volume--liters');
+    expect(payload.multiplication_factor).toEqual(1);
+    expect(payload.division_factor).toEqual(10);
+    expect(payload.offset).toEqual(5.0);
+  });
+
   it('check variable.getHexLid', () => {
     let v: Variable = dummyVariable;
     expect(v.getHexLid()).toEqual('5001');

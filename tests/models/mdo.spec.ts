@@ -59,6 +59,20 @@ describe('MdoTest', () => {
     expect(dst.label).toEqual('UPP');
   });
 
+  it('check mdo.getPatchPayload', () => {
+    let mdo: Mdo = new Mdo({
+      "multiplication_factor": 100,
+      "division_factor": 2,
+      "offset": 10.0,
+      "mdo_label": "UPP"
+    });
+    let payload: any = mdo.getPatchPayload();
+    expect(payload.multiplication_factor).toEqual(100);
+    expect(payload.division_factor).toEqual(2);
+    expect(payload.offset).toEqual(10.0);
+    expect(payload.mdo_label).toEqual('UPP');
+  });
+
   it('check mdo.setFromFactor', () => {
     let mdo: Mdo = new Mdo();
     mdo.setFromFactor(.001, false);

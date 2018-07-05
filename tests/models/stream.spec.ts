@@ -52,6 +52,49 @@ describe('StreamTest', () => {
     created_on: "2016-11-16T16:42:54.312425Z",
     slug: "s--0000-0010--0000-0000-0000-00ae--5001"
   });
+
+  const dummyStream2 = new Stream({
+    "id": "13671f1f-e2cb-49f8-82bd-a05d5f66371d",
+    "project_id": null,
+    "project": "p--0000-0006",
+    "device": "d--0000-0000-0000-0084",
+    "block": "b--0001-0000-0000-0084",
+    "data_label": "My Data",
+    "variable": "v--0000-0006--5003",
+    "var_type": "soil-moisture-percent",
+    "var_name": "IO 1",
+    "var_lid": 20483,
+    "input_unit": {
+        "m": 100,
+        "d": 4095,
+        "unit_short": "%",
+        "o": 0.0,
+        "slug": "in--soil-moisture-percent--percent",
+        "unit_full": "Percent"
+    },
+    "output_unit": {
+        "slug": "out--soil-moisture-percent--percent",
+        "unit_short": "%",
+        "decimal_places": 1,
+        "m": 1,
+        "d": 1,
+        "unit_full": "Percent",
+        "o": 0.0,
+        "derived_units": {}
+    },
+    "derived_stream": null,
+    "raw_value_format": "<L",
+    "mdo_type": "S",
+    "mdo_label": "",
+    "multiplication_factor": 1,
+    "division_factor": 10,
+    "offset": 0.0,
+    "org": "arch-grow",
+    "created_on": "2017-08-24T21:50:49.658026Z",
+    "slug": "s--0000-0006--0001-0000-0000-0084--5003",
+    "enabled": true
+  });
+
   
   it('check Stream construction', () => {
     let stream: Stream = dummyStream0; 
@@ -87,5 +130,16 @@ describe('StreamTest', () => {
     let blob = stream.toJson();
     expect(blob.data_label).toEqual('test label');
     expect(blob.mdo_type).toEqual('X');
-  })
+  });
+
+  it('check stream.getPatchPayload()', () => {
+    let stream: Stream = dummyStream2;
+    let payload: any = stream.getPatchPayload();
+    expect(payload.mdo_type).toEqual('S');
+    expect(payload.input_unit).toEqual('in--soil-moisture-percent--percent');
+    expect(payload.output_unit).toEqual('out--soil-moisture-percent--percent');
+    expect(payload.multiplication_factor).toEqual(1);
+    expect(payload.division_factor).toEqual(10);
+    expect(payload.enabled).toBeTruthy();
+  });
 });

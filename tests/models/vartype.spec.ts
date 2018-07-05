@@ -44,6 +44,84 @@ describe('VarTypeTest', () => {
     "storage_units_full": "Liters",
     "storage_units_short": "l"
   });
+
+  const dummyVarTypeWithSchema: VarType = new VarType({
+    "name": "POD-1M Accelerometer",
+    "slug": "pod-1m-accelerometer",
+    "available_input_units": [],
+    "available_output_units": [],
+    "stream_data_type": "E2",
+    "decoder": null,
+    "schema": {
+        "id": 1,
+        "keys": {
+            "duration": {
+                "type": "float",
+                "label": "Duration",
+                "units": "ms",
+                "decimal": 3
+            },
+            "delta_v_x": {
+                "type": "float",
+                "output_units": {
+                    "in/s": {
+                        "mdo": [
+                            3937,
+                            100,
+                            0.0
+                        ]
+                    }
+                },
+                "label": "dV(X)",
+                "units": "m/s",
+                "decimal": 3
+            },
+            "delta_v_y": {
+                "type": "float",
+                "output_units": {
+                    "in/s": {
+                        "mdo": [
+                            3937,
+                            100,
+                            0.0
+                        ]
+                    }
+                },
+                "label": "dV(Y)",
+                "units": "m/s",
+                "decimal": 3
+            },
+            "delta_v_z": {
+                "type": "float",
+                "output_units": {
+                    "in/s": {
+                        "mdo": [
+                            3937,
+                            100,
+                            0.0
+                        ]
+                    }
+                },
+                "label": "dV(Z)",
+                "units": "m/s",
+                "decimal": 3
+            },
+            "peak": {
+                "type": "float",
+                "label": "Peak",
+                "units": "G",
+                "decimal": 2
+            },
+            "axis": {
+                "type": "str",
+                "label": "Axis"
+            }
+        },
+        "display_order": []
+    },
+    "storage_units_full": "Event",
+    "storage_units_short": ""
+  });
   
   it('check basic varType', () => {
     let varType: VarType = dummyVarType;
@@ -95,5 +173,35 @@ describe('VarTypeTest', () => {
     let u1: Unit = varType.getOutputUnitForSlug('out--water-meter-volume--foo');
     expect(u1.fullName).toEqual('Foo');
     expect(u1.shortName).toEqual('g');
+  });
+
+  it('check basic varType with schema', () => {
+    expect(dummyVarTypeWithSchema.schema['duration']).toBeDefined();
+    expect(dummyVarTypeWithSchema.schema['duration']['type']).toBe('float');
+    expect(dummyVarTypeWithSchema.schema['duration']['label']).toBe('Duration');
+    expect(dummyVarTypeWithSchema.schema['duration'].output_units).not.toBeDefined();
+  });
+
+  it('check basic varType schema with units', () => {
+    expect(dummyVarTypeWithSchema.schema['delta_v_x'].units).toBe('m/s');
+  });
+
+  it('check basic varType schema with outputUnits', () => {
+    let outputUnits = dummyVarTypeWithSchema.schema['delta_v_x']['output_units'];
+
+    expect(outputUnits).toBeDefined();
+    expect(outputUnits['in/s']['mdo'][0]).toEqual(3937);
+    expect(outputUnits['in/s']['mdo'][1]).toEqual(100);
+  });
+
+  it('check basic varType schema with outputUnits', () => {
+    let schemaObj = dummyVarTypeWithSchema.getASchemaObj('delta_v_y');
+    expect(schemaObj).toBeDefined();
+
+    let outputUnits = dummyVarTypeWithSchema.getOutputUnitsForSchema('delta_v_y');
+
+    expect(outputUnits).toBeDefined();
+    expect(outputUnits['in/s']['mdo'][0]).toEqual(3937);
+    expect(outputUnits['in/s']['mdo'][1]).toEqual(100);
   });
 });

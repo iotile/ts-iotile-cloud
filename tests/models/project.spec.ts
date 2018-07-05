@@ -2,6 +2,7 @@ import {Project} from "../../src/models/project";
 import {Device} from "../../src/models/device";
 import {Stream} from "../../src/models/stream";
 import {Variable} from "../../src/models/variable";
+import {Property} from "../../src/models/property";
 
 describe('ProjectTest', () => {
   const dummyProject: Project = new Project({
@@ -29,6 +30,22 @@ describe('ProjectTest', () => {
     expect(proj.gid).toEqual('0000-0012');
     expect(proj.name).toEqual('My Project');
     expect(proj.orgSlug).toEqual('my-org');
+  });
+
+  it('check project counts', () => {
+    let proj: Project = new Project({
+      "id": "84e3869d-1fdb-4203-9b69-18b417e2b0e0",
+      "counts": {
+        "active_devices": 1,
+        "inactive_devices": 2,
+        "variables": 4,
+        "streams": 6
+      }
+    });
+    expect(proj.counts['active_devices']).toEqual(1);
+    expect(proj.counts['inactive_devices']).toEqual(2);
+    expect(proj.counts.variables).toEqual(4);
+    expect(proj.counts.streams).toEqual(6);
   });
 
   it('check default page template', () => {
@@ -117,5 +134,28 @@ describe('ProjectTest', () => {
     expect(proj.variables[1].slug).toBe('v--0000-0001--5002');
     v = proj.getVariable('v--0000-0001--5001');
     expect(v.getHexLid()).toBe('5001');
+  });
+
+  it('it check project properties', () => {
+    let proj: Project = dummyProject;
+    let properties: Array<Property> = [];
+
+    let dummyProperty1: Property = new Property({
+      "id": 7,
+      "name": "transportType",
+      "value": "Air"
+    });
+    properties.push(dummyProperty1);
+
+    let dummyProperty2 = new Property({
+      "id": 8,
+      "name": "cargoDescription",
+      "value": "Statement or description of the cargo."
+    });
+    properties.push(dummyProperty2);
+
+    proj.addProperties(properties);
+    expect(proj.getProperty('transportType')).toBe(dummyProperty1);
+    expect(proj.getProperty('cargoDescription')).toBe(dummyProperty2);
   });
 });
