@@ -514,10 +514,14 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
-  public async fetchProjectStreams(projectId: string) {
+  public async fetchProjectStreams(projectId: string, virtual?:boolean) {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
-      that.fetchFromServer('/stream/?project=' + projectId)
+      let uri: string = '/stream/?project=' + projectId;
+      if (virtual){
+        uri += '&virtual=1';
+      }
+      that.fetchFromServer(uri)
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -567,6 +571,91 @@ export class IOTileCloud {
       });
     });
   }
+
+  public async deleteStream(streamSlug: string) {
+    let that = this;
+    return new Promise<Stream>(function(resolve, reject) {
+      that.deleteFromServer('/stream/' + streamSlug + '/')
+      .then(function (resp: any) {
+        resolve(resp);
+      }).catch(function (err) {
+        reject(err);
+      });
+    });
+  }
+
+  /**
+   * @ngdoc method
+   * @name iotile.cloud.service:IOTileCloud#fetchStreamData
+   * @methodOf iotile.cloud.service:IOTileCloud
+   *
+   * @description
+   * Fetches a specific stream from the IOTile Cloud.
+   *
+   * **This is an async method!**
+   *
+   * Returns a Stream object with the stream requested.
+   *
+   * @example
+   * <pre>
+   * // Get a stream object for stream with slug: streamSlug
+   * var stream = await IOTileCloud.fetchStream(streamSlug);
+   * console.log("Found stream with slug: " + stream.slug);
+   * </pre>
+   *
+   * @param {string} streamSlug The slug property of the stream that will
+   *                            be fetched.
+   *
+   * @returns {DataPoint[]} An IOTile Stream.
+   */
+  // TODO
+  public async fetchStreamData(streamSlug: string) {
+    let that = this;
+    return new Promise<Stream>(function(resolve, reject) {
+      that.fetchFromServer('/stream/' + streamSlug + '/')
+      .then(function (item: any) {
+        let newStream = new Stream(item);
+        resolve(newStream);
+      }).catch(function (err) {
+        reject(err);
+      });
+    });
+  }
+
+  public async createStream(variable: string, dataLabel: string) {
+    let data = {
+      'variable': variable,
+      'data_label': dataLabel
+    };
+
+    let response = await this.postToServer('/stream/', data);
+    return response;
+  }
+
+  public async createVariable(name: string, project: string, lid: number): Promise<any> {
+    let data = {
+      'name': name,
+      'project': project,
+      'lid': lid
+    };
+
+    let response = await this.postToServer('/variable/', data);
+    return response;
+  }
+
+  // FIXME: type should be an Enum ['Num', 'ITR', 'P-0', 'P-1', 'P-E']
+  public async postStreamData(streamSlug: string, type: string, value: any){
+    let data = {
+      'stream': streamSlug,
+      'type': type,
+      'timestamp': new Date(),
+      'int_value': value
+    };
+
+    let response = await this.postToServer('/data/', data);
+    return response;
+  }
+  
 
   /**
    * @ngdoc method
@@ -947,6 +1036,39 @@ export class IOTileCloud {
 
   public setToken(token: string){
     axios.defaults.headers.common['Authorization'] = token;
+  }
+
+  private async deleteFromServer(uri: string, headers?: {}) : Promise<{} | Array<{}>> {
+    if (!this._server){
+      throw new Error(`Cannot delete ${uri}: unknown server address`);
+    }
+    
+    let request: {[key: string]: any} = {
+      method: 'DELETE',
+      url: this._server.url + uri,
+      timeout: this.Config.ENV.HTTP_TIMEOUT
+    };
+
+    if (headers) {
+      request['headers'] = headers;
+    }
+    catCloud.debug(`[IOTileCloud] Delete request: ${request}`);
+    let that = this;
+    return new Promise<{} | Array<{}>>(function(resolve, reject) {
+      that.inProgressConnections += 1;
+      axios(request).then(function (response: any) {
+        catCloud.debug(`[IOTileCloud] Response: ${response}`);
+        that.inProgressConnections -= 1;
+        if (response.data['results'] !== undefined) {
+          resolve(response.data['results']);
+        } else {
+          resolve(response.data);
+        }
+      }, function (err: any) {
+        that.inProgressConnections -= 1;
+        reject(new HttpError(err));
+      });
+    });
   }
 
   private async fetchFromServer(uri: string, headers?: {}) : Promise<{} | Array<{}>> {
