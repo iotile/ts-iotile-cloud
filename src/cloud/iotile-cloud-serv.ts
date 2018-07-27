@@ -401,7 +401,7 @@ export class IOTileCloud {
   public async fetchProjectDevices(projectId: string) {
     let that = this;
     return new Promise<Device[]>(function(resolve, reject) {
-      that.fetchFromServer('/device/?project=' + projectId + '?page_size=1000')
+      that.fetchFromServer('/device/?project=' + projectId + '&page_size=1000')
       .then(function (result: any) {
         let list: Array<Device> = [];
         lodash.forEach(result, function (item: any) {
@@ -517,7 +517,7 @@ export class IOTileCloud {
   public async fetchProjectStreams(projectId: string, virtual?:boolean) {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
-      let uri: string = '/stream/?project=' + projectId + '?page_size=3000';
+      let uri: string = '/stream/?project=' + projectId + '&page_size=3000';
       if (virtual){
         uri += '&virtual=1';
       }
