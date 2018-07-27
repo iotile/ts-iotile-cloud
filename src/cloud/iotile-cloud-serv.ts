@@ -1,5 +1,5 @@
 import { Project, Org, Stream, Streamer, Device, Variable, SensorGraph, VarType, 
-    HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership, ServerInformation} 
+    HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership, ServerInformation, DataPoint} 
     from "../models";
 import { startsWith, ArgumentError, BlockingEvent, UserNotLoggedInError} 
     from "iotile-common";
@@ -401,7 +401,7 @@ export class IOTileCloud {
   public async fetchProjectDevices(projectId: string) {
     let that = this;
     return new Promise<Device[]>(function(resolve, reject) {
-      that.fetchFromServer('/device/?project=' + projectId)
+      that.fetchFromServer('/device/?project=' + projectId + '?page_size=1000')
       .then(function (result: any) {
         let list: Array<Device> = [];
         lodash.forEach(result, function (item: any) {
@@ -517,7 +517,7 @@ export class IOTileCloud {
   public async fetchProjectStreams(projectId: string, virtual?:boolean) {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
-      let uri: string = '/stream/?project=' + projectId;
+      let uri: string = '/stream/?project=' + projectId + '?page_size=3000';
       if (virtual){
         uri += '&virtual=1';
       }
@@ -590,32 +590,35 @@ export class IOTileCloud {
    * @methodOf iotile.cloud.service:IOTileCloud
    *
    * @description
-   * Fetches a specific stream from the IOTile Cloud.
+   * Fetches a specific stream's datapoints from the IOTile Cloud.
    *
    * **This is an async method!**
    *
-   * Returns a Stream object with the stream requested.
+   * Returns a list of DataPoints from the stream requested.
    *
    * @example
    * <pre>
-   * // Get a stream object for stream with slug: streamSlug
-   * var stream = await IOTileCloud.fetchStream(streamSlug);
-   * console.log("Found stream with slug: " + stream.slug);
+   * // Get an array of DataPoints for stream with slug: streamSlug
+   * var datapoints = await IOTileCloud.fetchStreamData(streamSlug);
+   * console.log(`Found ${datapoints.length} datapoints from stream with slug: ${stream.slug}`);
    * </pre>
    *
    * @param {string} streamSlug The slug property of the stream that will
    *                            be fetched.
    *
-   * @returns {DataPoint[]} An IOTile Stream.
+   * @returns {Array<DataPoint>} An array of DataPoints.
    */
-  // TODO
-  public async fetchStreamData(streamSlug: string) {
+  public async fetchStreamData(streamSlug: string): Promise<Array<DataPoint>> {
     let that = this;
-    return new Promise<Stream>(function(resolve, reject) {
+    let datapoints: Array<DataPoint> = [];
+    return new Promise<Array<DataPoint>>(function(resolve, reject) {
       that.fetchFromServer('/stream/' + streamSlug + '/')
-      .then(function (item: any) {
-        let newStream = new Stream(item);
-        resolve(newStream);
+      .then(function (result: any) {
+        lodash.forEach(result, function (item: any) {
+          let newData = new DataPoint(item);
+          datapoints.push(newData);
+        });
+        resolve(datapoints);
       }).catch(function (err) {
         reject(err);
       });
@@ -643,7 +646,6 @@ export class IOTileCloud {
     return response;
   }
 
-  // FIXME: type should be an Enum ['Num', 'ITR', 'P-0', 'P-1', 'P-E']
   public async postStreamData(streamSlug: string, type: string, value: any){
     let data = {
       'stream': streamSlug,
