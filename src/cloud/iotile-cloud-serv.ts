@@ -357,6 +357,7 @@ export class IOTileCloud {
    *
    * @returns {Device[]} A list of the IOTile devices.
    */
+  // TODO: get by pages of 500
   public async fetchAllDevices() {
     let that = this;
     return new Promise<Device[]>(function(resolve, reject) {
@@ -398,6 +399,7 @@ export class IOTileCloud {
    *
    * @returns {Device[]} A list of the IOTile devices.
    */
+  // TODO: get by pages of 500
   public async fetchProjectDevices(projectId: string) {
     let that = this;
     return new Promise<Device[]>(function(resolve, reject) {
@@ -473,10 +475,11 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
+  // TODO: get by pages of 2000
   public async fetchAllStreams() {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
-      that.fetchFromServer('/stream/?page_size=3000')
+      that.fetchFromServer('/stream/?page_size=5000')
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -514,10 +517,11 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
+  // TODO: get by pages of 2000
   public async fetchProjectStreams(projectId: string, virtual?:boolean) {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
-      let uri: string = '/stream/?project=' + projectId + '&page_size=3000';
+      let uri: string = '/stream/?project=' + projectId + '&page_size=5000';
       if (virtual){
         uri += '&virtual=1';
       }
