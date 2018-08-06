@@ -1,5 +1,5 @@
 {
-  "name": "iotile-cloud",
+  "name": "@iotile/iotile-cloud",
   "version": "0.0.1",
   "description": "A typescript library for interfacing with the IOTile Cloud API",
   "main": "dist/iotile-cloud.umd.js",
