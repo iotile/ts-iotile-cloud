@@ -1,5 +1,5 @@
 import { Project, Org, Stream, Streamer, Device, Variable, SensorGraph, VarType, 
-    HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership, ServerInformation, DataPoint} 
+    HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership, ServerInformation, DataPoint, Note} 
     from "../models";
 import { startsWith, ArgumentError, BlockingEvent, UserNotLoggedInError} 
     from "iotile-common";
@@ -357,11 +357,10 @@ export class IOTileCloud {
    *
    * @returns {Device[]} A list of the IOTile devices.
    */
-  // TODO: get by pages of 500
   public async fetchAllDevices() {
     let that = this;
     return new Promise<Device[]>(function(resolve, reject) {
-      that.fetchFromServer('/device/?page_size=1000') //The default limit of devices returned per page is apparently 100
+      that.fetchPagesFromServer('/device/', 500)
       .then(function (result: any) {
         let list: Array<Device> = [];
         lodash.forEach(result, function (item: any) {
@@ -399,11 +398,12 @@ export class IOTileCloud {
    *
    * @returns {Device[]} A list of the IOTile devices.
    */
-  // TODO: get by pages of 500
   public async fetchProjectDevices(projectId: string) {
+    let count: number = 0;
     let that = this;
+
     return new Promise<Device[]>(function(resolve, reject) {
-      that.fetchFromServer('/device/?project=' + projectId + '&page_size=1000')
+      that.fetchPagesFromServer('/device/?project=' + projectId, 500)
       .then(function (result: any) {
         let list: Array<Device> = [];
         lodash.forEach(result, function (item: any) {
@@ -475,11 +475,10 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
-  // TODO: get by pages of 2000
   public async fetchAllStreams() {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
-      that.fetchFromServer('/stream/?page_size=5000')
+      that.fetchPagesFromServer('/stream/', 2000)
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -517,15 +516,14 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
-  // TODO: get by pages of 2000
   public async fetchProjectStreams(projectId: string, virtual?:boolean) {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
-      let uri: string = '/stream/?project=' + projectId + '&page_size=5000';
+      let uri: string = '/stream/?project=' + projectId;
       if (virtual){
         uri += '&virtual=1';
       }
-      that.fetchFromServer(uri)
+      that.fetchPagesFromServer(uri, 2000)
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -588,6 +586,30 @@ export class IOTileCloud {
     });
   }
 
+  public async deleteStreamData(dataId: number) {
+    let that = this;
+    return new Promise<any>(function(resolve, reject) {
+      that.deleteFromServer('/data/' + dataId + '/')
+      .then(function (resp: any) {
+        resolve(resp);
+      }).catch(function (err) {
+        reject(err);
+      });
+    });
+  }
+
+  public async deleteNote(noteId: number) {
+    let that = this;
+    return new Promise<any>(function(resolve, reject) {
+      that.deleteFromServer('/note/' + noteId + '/')
+      .then(function (resp: any) {
+        resolve(resp);
+      }).catch(function (err) {
+        reject(err);
+      });
+    });
+  }
+
   /**
    * @ngdoc method
    * @name iotile.cloud.service:IOTileCloud#fetchStreamData
@@ -616,13 +638,31 @@ export class IOTileCloud {
     let that = this;
     let datapoints: Array<DataPoint> = [];
     return new Promise<Array<DataPoint>>(function(resolve, reject) {
-      that.fetchFromServer('/stream/' + streamSlug + '/')
+      that.fetchFromServer('/stream/' + streamSlug + '/data/')
       .then(function (result: any) {
         lodash.forEach(result, function (item: any) {
           let newData = new DataPoint(item);
           datapoints.push(newData);
         });
         resolve(datapoints);
+      }).catch(function (err) {
+        reject(err);
+      });
+    });
+  }
+
+
+  public async fetchNotes(targetSlug: string): Promise<Array<Note>> {
+    let that = this;
+    let notes: Array<Note> = [];
+    return new Promise<Array<Note>>(function(resolve, reject) {
+      that.fetchFromServer('/note/?target=' + targetSlug)
+      .then(function (result: any) {
+        lodash.forEach(result, function (item: any) {
+          let newData = new Note(item);
+          notes.push(newData);
+        });
+        resolve(notes);
       }).catch(function (err) {
         reject(err);
       });
@@ -1093,6 +1133,7 @@ export class IOTileCloud {
     }
     catCloud.debug(`[IOTileCloud] Fetch request: ${request}`);
     let that = this;
+
     return new Promise<{} | Array<{}>>(function(resolve, reject) {
       that.inProgressConnections += 1;
       axios(request).then(function (response: any) {
@@ -1108,6 +1149,83 @@ export class IOTileCloud {
         reject(new HttpError(err));
       });
     });
+  }
+
+  private async fetchPagesFromServer(uri: string, pageSize: number, headers?: {}) : Promise<{} | Array<{}>> {
+    if (!this._server){
+      throw new Error(`Cannot fetch ${uri}: unknown server address`);
+    }
+    let baseURL = this._server.url + uri;
+
+    let request: {[key: string]: any} = {
+      method: 'GET',
+      url: baseURL,
+      timeout: this.Config.ENV.HTTP_TIMEOUT
+    };
+
+    if (headers) {
+      request['headers'] = headers;
+    }
+    catCloud.debug(`[IOTileCloud] Fetch request: ${request}`);
+    let that = this;
+    let total = 0;
+
+    // Get the number of total results
+    total = await new Promise<number>(function(resolve, reject) {
+      that.inProgressConnections += 1;
+      axios(request).then(function (response: any) {
+        catCloud.debug(`[IOTileCloud] Response: ${response}`);
+        that.inProgressConnections -= 1;
+        if (response.data['count'] !== undefined) {
+          resolve(response.data['count']);
+        } else {
+          resolve(0);
+        }
+      }, function (err: any) {
+        that.inProgressConnections -= 1;
+        reject(new HttpError(err));
+      });
+    });
+
+    let promises : Promise<{}>[] = [];
+    let count = 0;
+    let link: string;
+
+    while (count < total){
+
+      if (baseURL.includes('?')){
+        link = '&';
+      } else {
+        link = '?';
+      }
+
+      if (count == 0){
+        request.url = baseURL + `${link}page_size=${pageSize}`;
+      } else {
+        request.url = baseURL + `${link}page=${Math.ceil(count/pageSize) + 1}&page_size=${pageSize}`;
+      }
+
+      promises.push(
+        new Promise<{} | Array<{}>>(function(resolve, reject) {
+          that.inProgressConnections += 1;
+          axios(request).then(function (response: any) {
+            catCloud.debug(`[IOTileCloud] Response: ${response}`);
+            that.inProgressConnections -= 1;
+            if (response.data['results'] !== undefined) {
+              resolve(response.data['results']);
+            } else {
+              resolve(response.data);
+            }
+          }, function (err: any) {
+            that.inProgressConnections -= 1;
+            reject(new HttpError(err));
+          });
+        })
+      )
+      count += pageSize;
+    }
+
+    return Promise.all(promises);
   }
 
   private async postToServer(uri: string, data?: {}) : Promise<{} | Array<{}>> {
@@ -1262,14 +1380,13 @@ export class IOTileCloud {
   }
 
   public async fetchAcknowledgements(deviceSlug?: string): Promise<StreamerAck[]> {
-    let filter = "?";
+    let filter = "";
 
-    if (deviceSlug != null)
-      filter = `?device=${deviceSlug}&`;
-    
-    filter += 'page_size=1000';
-    
-    let acks = <Array<any>>await this.fetchFromServer('/streamer/' + filter);
+    if (deviceSlug != null){
+      filter = `?device=${deviceSlug}`;
+    }
+
+    let acks = <Array<any>>await this.fetchPagesFromServer('/streamer/' + filter, 1000);
 
     return acks.map((val) => {return {
       deviceSlug: val['device'],
