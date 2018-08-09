@@ -399,7 +399,6 @@ export class IOTileCloud {
    * @returns {Device[]} A list of the IOTile devices.
    */
   public async fetchProjectDevices(projectId: string) {
-    let count: number = 0;
     let that = this;
 
     return new Promise<Device[]>(function(resolve, reject) {
@@ -516,14 +515,16 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
+  // FIXME: the virtual filter has to be applied last; needs work to use pagination
   public async fetchProjectStreams(projectId: string, virtual?:boolean) {
     let that = this;
-    return new Promise<Stream[]>(function(resolve, reject) {
-      let uri: string = '/stream/?project=' + projectId;
-      if (virtual){
+    let uri: string = '/stream/?project=' + projectId + "&page_size=5000";
+    if (virtual){
         uri += '&virtual=1';
-      }
-      that.fetchPagesFromServer(uri, 2000)
+    }
+
+    return new Promise<Stream[]>(function(resolve, reject) {
+      that.fetchFromServer(uri)
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -638,7 +639,7 @@ export class IOTileCloud {
     let that = this;
     let datapoints: Array<DataPoint> = [];
     return new Promise<Array<DataPoint>>(function(resolve, reject) {
-      that.fetchFromServer('/stream/' + streamSlug + '/data/')
+      that.fetchFromServer('/data/?filter=' + streamSlug)
       .then(function (result: any) {
         lodash.forEach(result, function (item: any) {
           let newData = new DataPoint(item);
