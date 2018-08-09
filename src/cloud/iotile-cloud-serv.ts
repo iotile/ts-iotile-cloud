@@ -515,16 +515,15 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
-  // FIXME: the virtual filter has to be applied last; needs work to use pagination
   public async fetchProjectStreams(projectId: string, virtual?:boolean) {
     let that = this;
-    let uri: string = '/stream/?project=' + projectId + "&page_size=5000";
+    let uri: string = '/stream/?project=' + projectId;
     if (virtual){
         uri += '&virtual=1';
     }
 
     return new Promise<Stream[]>(function(resolve, reject) {
-      that.fetchFromServer(uri)
+      that.fetchPagesFromServer(uri, 2000)
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -1226,7 +1225,12 @@ export class IOTileCloud {
       count += pageSize;
     }
 
-    return Promise.all(promises);
+    let result = await Promise.all(promises);
+    
+    if (result[0] instanceof Array){
+      result = lodash.flatten(result);
+    }
+    return result;
   }
 
   private async postToServer(uri: string, data?: {}) : Promise<{} | Array<{}>> {
