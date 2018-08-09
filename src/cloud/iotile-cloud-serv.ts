@@ -1226,11 +1226,7 @@ export class IOTileCloud {
     }
 
     let result = await Promise.all(promises);
-    
-    if (result[0] instanceof Array){
-      result = lodash.flatten(result);
-    }
-    return result;
+    return lodash.flatten(result);
   }
 
   private async postToServer(uri: string, data?: {}) : Promise<{} | Array<{}>> {
