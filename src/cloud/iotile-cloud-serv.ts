@@ -1172,7 +1172,7 @@ export class IOTileCloud {
       let count = 0;
 
       while (count < total){
-        if (count > 0){
+        if (count >= 0){
           filter.addFilter('page', (Math.ceil(count/+pageSize) + 1).toString(), true);    
         }
         request.url = baseURL + filter.filterString();
