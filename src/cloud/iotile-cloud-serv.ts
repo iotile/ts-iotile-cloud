@@ -1,5 +1,5 @@
 import { Project, Org, Stream, Streamer, Device, Variable, SensorGraph, VarType, 
-    HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership, ServerInformation, DataPoint, Note} 
+    HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership, ServerInformation, DataPoint, Note, ApiFilter} 
     from "../models";
 import { startsWith, ArgumentError, BlockingEvent, UserNotLoggedInError} 
     from "iotile-common";
@@ -121,12 +121,12 @@ export class IOTileCloud {
    *
    * @example
    * <pre>
-   * // Get an array of all projects available
-   * var projects = await IOTileCloud.fetchProjects();
-   * console.log("Found " + projects.length + " IOTile Projects!");
+   * // Get a project specified by id
+   * var project = await IOTileCloud.fetchProject();
+   * console.log("Found " + project.name + "!");
    * </pre>
    *
-   * @returns {Project[]} A list of the IOTile projects.
+   * @returns {Project} An IOTile project with the given id.
    */
   public async fetchProject(projectID: string) {
     let that = this;
@@ -156,10 +156,10 @@ export class IOTileCloud {
    *
    * @returns {Project[]} A list of the IOTile projects.
    */
-  public async fetchProjects () {
+  public async fetchProjects (filter?: ApiFilter) {
     let that = this;
     return new Promise<Project[]>(function(resolve, reject) {
-      that.fetchFromServer('/project/')
+      that.fetchFromServer('/project/', filter)
       .then(function (result) {
         let list: Array<Project> = [];
         lodash.forEach(result, function (item: any) {
@@ -231,10 +231,10 @@ export class IOTileCloud {
    *
    * @returns {Org[]} A list of the IOTile organizations.
    */
-  public async fetchOrgs() {
+  public async fetchOrgs(filter?: ApiFilter) {
     let that = this;
     return new Promise<Org[]>(function(resolve, reject) {
-      that.fetchFromServer('/org/')
+      that.fetchFromServer('/org/', filter)
       .then(function (result) {
         let list: Array<Org> = [];
         lodash.forEach(result, function (item: any) {
@@ -268,10 +268,10 @@ export class IOTileCloud {
    *
    * @returns {Membership} The membership information of the User in the given Org
    */
-  public async fetchOrgMembership(org: Org): Promise<Membership>{
+  public async fetchOrgMembership(org: Org, filter?: ApiFilter): Promise<Membership>{
     let that = this;
     return new Promise<Membership>(function(resolve, reject) {
-      that.fetchFromServer('/org/' + org.slug + '/membership/')
+      that.fetchFromServer('/org/' + org.slug + '/membership/', filter)
       .then(function (result) {
         let membership = new Membership(result);
         resolve(membership);
@@ -357,10 +357,10 @@ export class IOTileCloud {
    *
    * @returns {Device[]} A list of the IOTile devices.
    */
-  public async fetchAllDevices() {
+  public async fetchAllDevices(filter?: ApiFilter) {
     let that = this;
     return new Promise<Device[]>(function(resolve, reject) {
-      that.fetchPagesFromServer('/device/', 500)
+      that.fetchPagesFromServer('/device/', filter)
       .then(function (result: any) {
         let list: Array<Device> = [];
         lodash.forEach(result, function (item: any) {
@@ -398,11 +398,11 @@ export class IOTileCloud {
    *
    * @returns {Device[]} A list of the IOTile devices.
    */
-  public async fetchProjectDevices(projectId: string) {
+  public async fetchProjectDevices(projectId: string, filter?: ApiFilter) {
     let that = this;
 
     return new Promise<Device[]>(function(resolve, reject) {
-      that.fetchPagesFromServer('/device/?project=' + projectId, 500)
+      that.fetchPagesFromServer('/device/?project=' + projectId, filter)
       .then(function (result: any) {
         let list: Array<Device> = [];
         lodash.forEach(result, function (item: any) {
@@ -474,10 +474,10 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
-  public async fetchAllStreams() {
+  public async fetchAllStreams(filter?: ApiFilter) {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
-      that.fetchPagesFromServer('/stream/', 2000)
+      that.fetchPagesFromServer('/stream/', filter)
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -515,15 +515,12 @@ export class IOTileCloud {
    *
    * @returns {Stream[]} A list of the IOTile streams.
    */
-  public async fetchProjectStreams(projectId: string, virtual?:boolean) {
+  public async fetchProjectStreams(projectId: string, filter?: ApiFilter) {
     let that = this;
     let uri: string = '/stream/?project=' + projectId;
-    if (virtual){
-        uri += '&virtual=1';
-    }
 
     return new Promise<Stream[]>(function(resolve, reject) {
-      that.fetchPagesFromServer(uri, 2000)
+      that.fetchPagesFromServer(uri, filter)
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -574,34 +571,10 @@ export class IOTileCloud {
     });
   }
 
-  public async deleteStream(streamSlug: string) {
-    let that = this;
-    return new Promise<Stream>(function(resolve, reject) {
-      that.deleteFromServer('/stream/' + streamSlug + '/')
-      .then(function (resp: any) {
-        resolve(resp);
-      }).catch(function (err) {
-        reject(err);
-      });
-    });
-  }
-
-  public async deleteStreamData(dataId: number) {
+  public async delete(targetType: string, targetId: number | string) {
     let that = this;
     return new Promise<any>(function(resolve, reject) {
-      that.deleteFromServer('/data/' + dataId + '/')
-      .then(function (resp: any) {
-        resolve(resp);
-      }).catch(function (err) {
-        reject(err);
-      });
-    });
-  }
-
-  public async deleteNote(noteId: number) {
-    let that = this;
-    return new Promise<any>(function(resolve, reject) {
-      that.deleteFromServer('/note/' + noteId + '/')
+      that.deleteFromServer(`/${targetType}/` + targetId + '/')
       .then(function (resp: any) {
         resolve(resp);
       }).catch(function (err) {
@@ -634,11 +607,11 @@ export class IOTileCloud {
    *
    * @returns {Array<DataPoint>} An array of DataPoints.
    */
-  public async fetchStreamData(streamSlug: string): Promise<Array<DataPoint>> {
+  public async fetchStreamData(streamSlug: string, filter?: ApiFilter): Promise<Array<DataPoint>> {
     let that = this;
     let datapoints: Array<DataPoint> = [];
     return new Promise<Array<DataPoint>>(function(resolve, reject) {
-      that.fetchFromServer('/data/?filter=' + streamSlug)
+      that.fetchFromServer('/data/?filter=' + streamSlug, filter)
       .then(function (result: any) {
         lodash.forEach(result, function (item: any) {
           let newData = new DataPoint(item);
@@ -652,11 +625,11 @@ export class IOTileCloud {
   }
 
 
-  public async fetchNotes(targetSlug: string): Promise<Array<Note>> {
+  public async fetchNotes(targetSlug: string, filter?: ApiFilter): Promise<Array<Note>> {
     let that = this;
     let notes: Array<Note> = [];
     return new Promise<Array<Note>>(function(resolve, reject) {
-      that.fetchFromServer('/note/?target=' + targetSlug)
+      that.fetchFromServer('/note/?target=' + targetSlug, filter)
       .then(function (result: any) {
         lodash.forEach(result, function (item: any) {
           let newData = new Note(item);
@@ -724,10 +697,10 @@ export class IOTileCloud {
    *
    * @returns {Variable[]} A list of the IOTile variables.
    */
-  public async fetchAllVariables() {
+  public async fetchAllVariables(filter?: ApiFilter) {
     let that = this;
     return new Promise<Variable[]>(function(resolve, reject) {
-      that.fetchFromServer('/variable/')
+      that.fetchFromServer('/variable/', filter)
       .then(function (result: any) {
         let list: Array<Variable> = [];
         lodash.forEach(result, function (item: any) {
@@ -765,10 +738,10 @@ export class IOTileCloud {
    *
    * @returns {Variable[]} A list of the IOTile variables.
    */
-  public async fetchProjectVariables(projectId: string) {
+  public async fetchProjectVariables(projectId: string, filter?: ApiFilter) {
     let that = this;
     return new Promise<Variable[]>(function(resolve, reject) {
-      that.fetchFromServer('/variable/?project=' + projectId)
+      that.fetchFromServer('/variable/?project=' + projectId, filter)
       .then(function (result: any) {
         let list: Array<Variable> = [];
         lodash.forEach(result, function (item: any) {
@@ -840,10 +813,10 @@ export class IOTileCloud {
    *
    * @returns {VarType[]} A list of the IOTile vartypes.
    */
-  public async fetchAllVarTypes() {
+  public async fetchAllVarTypes(filter?: ApiFilter) {
     let that = this;
     return new Promise<VarType[]>(function(resolve, reject) {
-      that.fetchFromServer('/vartype/')
+      that.fetchFromServer('/vartype/', filter)
       .then(function (result: any) {
         let list: Array<VarType> = [];
         lodash.forEach(result, function (item: any) {
@@ -878,10 +851,10 @@ export class IOTileCloud {
    *
    * @returns {ProjectTemplate[]} A list of the IOTile project templates.
    */
-  public async fetchAllProjectTemplates() {
+  public async fetchAllProjectTemplates(filter?: ApiFilter) {
     let that = this;
     return new Promise<ProjectTemplate[]>(function(resolve, reject) {
-      that.fetchFromServer('/pt/')
+      that.fetchFromServer('/pt/', filter)
       .then(function (result: any) {
         let list: Array<ProjectTemplate> = [];
         lodash.forEach(result, function (item: any) {
@@ -917,10 +890,10 @@ export class IOTileCloud {
    *
    * @returns {PropertyTemplate[]} A list of the IOTile property templates.
    */
-  public async fetchAllPropertyTemplates() {
+  public async fetchAllPropertyTemplates(filter?: ApiFilter) {
     let that = this;
     return new Promise<PropertyTemplate[]>(function(resolve, reject) {
-      that.fetchFromServer('/propertytemplate/')
+      that.fetchFromServer('/propertytemplate/', filter)
       .then(function (result: any) {
         let list: Array<PropertyTemplate> = [];
         lodash.forEach(result, function (item: any) {
@@ -957,10 +930,10 @@ export class IOTileCloud {
    *
    * @returns {Property[]} An IOTile Property.
    */
-  public async fetchProperties(deviceSlug: string) {
+  public async fetchProperties(deviceSlug: string, filter?: ApiFilter) {
     let that = this;
     return new Promise<Property[]>(function(resolve, reject) {
-      that.fetchFromServer('/property/?target=' + deviceSlug)
+      that.fetchFromServer('/property/?target=' + deviceSlug, filter)
       .then(function (result: any) {
         let list: Array<Property> = [];
         lodash.forEach(result, function (item: any) {
@@ -1011,10 +984,10 @@ export class IOTileCloud {
     });
   }
 
-  public async fetchSensorGraphs() {
+  public async fetchSensorGraphs(filter?: ApiFilter) {
     let that = this;
     return new Promise<SensorGraph[]>(function(resolve, reject) {
-      that.fetchFromServer('/sg/')
+      that.fetchFromServer('/sg/', filter)
       .then(function (result: any) {
         let list: Array<SensorGraph> = [];
         lodash.forEach(result, function (item: any) {
@@ -1070,7 +1043,7 @@ export class IOTileCloud {
   }
 
   public async fetchUserData(token: string) : Promise<User> {
-    let response : {[key: string]: any}= await this.fetchFromServer('/account/', {'Authorization': "JWT " + token});
+    let response : {[key: string]: any}= await this.fetchFromServer('/account/', undefined, {'Authorization': "JWT " + token});
 
     if (!response['length']) {
       throw new UserNotLoggedInError("No information for logged in user token");
@@ -1117,7 +1090,7 @@ export class IOTileCloud {
     });
   }
 
-  private async fetchFromServer(uri: string, headers?: {}) : Promise<{} | Array<{}>> {
+  private async fetchFromServer(uri: string, filter?: ApiFilter, headers?: {}) : Promise<{} | Array<{}>> {
     if (!this._server){
       throw new Error(`Cannot fetch ${uri}: unknown server address`);
     }
@@ -1127,6 +1100,10 @@ export class IOTileCloud {
       url: this._server.url + uri,
       timeout: this.Config.ENV.HTTP_TIMEOUT
     };
+
+    if (filter){
+      request.url += filter.filterString();
+    }
 
     if (headers) {
       request['headers'] = headers;
@@ -1151,7 +1128,7 @@ export class IOTileCloud {
     });
   }
 
-  private async fetchPagesFromServer(uri: string, pageSize: number, headers?: {}) : Promise<{} | Array<{}>> {
+  private async fetchPagesFromServer(uri: string, filter?: ApiFilter, headers?: {}) : Promise<{} | Array<{}>> {
     if (!this._server){
       throw new Error(`Cannot fetch ${uri}: unknown server address`);
     }
@@ -1163,6 +1140,14 @@ export class IOTileCloud {
       timeout: this.Config.ENV.HTTP_TIMEOUT
     };
 
+    if (!filter){
+      filter = new ApiFilter();
+    } else if (!filter.getFilter('page_size')){ 
+      filter.addFilter('page_size', '1000');
+    }
+    request.url += filter.filterString();
+    let pageSize = +(filter.getFilter('page_size') || 1000);
+                                                          
     if (headers) {
       request['headers'] = headers;
     }
@@ -1192,18 +1177,10 @@ export class IOTileCloud {
     let link: string;
 
     while (count < total){
-
-      if (baseURL.includes('?')){
-        link = '&';
-      } else {
-        link = '?';
+      if (count > 0){
+        filter.addFilter('page', (Math.ceil(count/pageSize) + 1).toString(), true);    
       }
-
-      if (count == 0){
-        request.url = baseURL + `${link}page_size=${pageSize}`;
-      } else {
-        request.url = baseURL + `${link}page=${Math.ceil(count/pageSize) + 1}&page_size=${pageSize}`;
-      }
+      request.url = baseURL + filter.filterString();
 
       promises.push(
         new Promise<{} | Array<{}>>(function(resolve, reject) {
@@ -1366,11 +1343,11 @@ export class IOTileCloud {
    *
    * @returns {Streamer} An IOTile Streamer.
    */
-  public async fetchStreamer(streamerSlug: string) {
+  public async fetchStreamer(streamerSlug: string, filter?: ApiFilter) {
     let that = this;
 
     return new Promise<Streamer>(function(resolve, reject) {
-      that.fetchFromServer('/streamer/' + streamerSlug + '/')
+      that.fetchFromServer('/streamer/' + streamerSlug + '/', filter)
       .then(function (item: any) {
         let newStreamer = new Streamer(item);
         resolve(newStreamer);
@@ -1381,13 +1358,13 @@ export class IOTileCloud {
   }
 
   public async fetchAcknowledgements(deviceSlug?: string): Promise<StreamerAck[]> {
-    let filter = "";
+    let filter = new ApiFilter();
 
     if (deviceSlug != null){
-      filter = `?device=${deviceSlug}`;
+      filter.addFilter('device', deviceSlug);
     }
 
-    let acks = <Array<any>>await this.fetchPagesFromServer('/streamer/' + filter, 1000);
+    let acks = <Array<any>>await this.fetchPagesFromServer('/streamer/', filter);
 
     return acks.map((val) => {return {
       deviceSlug: val['device'],

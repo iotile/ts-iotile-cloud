@@ -195,8 +195,8 @@ export class MockCloud
         let that = this;
         this.MockAdapter.onGet('https://iotile.cloud/api/v1/project/').reply(200, that.buildListResponse([water_proj, soil_proj]));
         this.MockAdapter.onGet('https://iotile.cloud/api/v1/org/').reply(200, that.buildListResponse([arch_internal_org, arch_systems_org]));
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/device/?page_size=1000').reply(200, that.buildListResponse(devices));
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/stream/?page_size=3000').reply(200, that.buildListResponse(streams));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/device/?page_size=500').reply(200, that.buildListResponse(devices));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/stream/?page_size=2000').reply(200, that.buildListResponse(streams));
         this.MockAdapter.onGet('https://iotile.cloud/api/v1/variable/').reply(200, that.buildListResponse(variables));
         this.MockAdapter.onGet('https://iotile.cloud/api/v1/vartype/').reply(200, that.buildListResponse(vartypes));
         this.MockAdapter.onGet('https://iotile.cloud/api/v1/sg/').reply(200, that.buildListResponse(sg));

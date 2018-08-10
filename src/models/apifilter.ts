@@ -25,4 +25,18 @@ export class ApiFilter {
         item.indexOf(arg) !== 0
       );
     }
+
+    // nb: if there are duplicate values for a key, returns the first
+    public getFilter(name: string): string | undefined {
+      let value;
+
+      for (let filter of this.filters){
+        let [key, val] = filter.split('=');
+          if (key == name){
+            value =  val;
+            break;
+          }
+      }
+      return value;
+    }
   }
