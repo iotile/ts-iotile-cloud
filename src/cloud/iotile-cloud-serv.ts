@@ -360,7 +360,7 @@ export class IOTileCloud {
   public async fetchAllDevices(filter?: ApiFilter) {
     let that = this;
     return new Promise<Device[]>(function(resolve, reject) {
-      that.fetchPagesFromServer('/device/', filter)
+      that.fetchFromServer('/device/', filter)
       .then(function (result: any) {
         let list: Array<Device> = [];
         lodash.forEach(result, function (item: any) {
@@ -402,7 +402,11 @@ export class IOTileCloud {
     let that = this;
 
     return new Promise<Device[]>(function(resolve, reject) {
-      that.fetchPagesFromServer('/device/?project=' + projectId, filter)
+      if (!filter){
+        filter = new ApiFilter();
+      }
+      filter.addFilter('project', projectId, true);
+      that.fetchFromServer('/device/', filter)
       .then(function (result: any) {
         let list: Array<Device> = [];
         lodash.forEach(result, function (item: any) {
@@ -477,7 +481,7 @@ export class IOTileCloud {
   public async fetchAllStreams(filter?: ApiFilter) {
     let that = this;
     return new Promise<Stream[]>(function(resolve, reject) {
-      that.fetchPagesFromServer('/stream/', filter)
+      that.fetchFromServer('/stream/', filter)
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -517,10 +521,14 @@ export class IOTileCloud {
    */
   public async fetchProjectStreams(projectId: string, filter?: ApiFilter) {
     let that = this;
-    let uri: string = '/stream/?project=' + projectId;
+    let uri: string = '/stream/';
 
     return new Promise<Stream[]>(function(resolve, reject) {
-      that.fetchPagesFromServer(uri, filter)
+      if (!filter){
+        filter = new ApiFilter();
+      }
+      filter.addFilter('project', projectId, true);
+      that.fetchFromServer(uri, filter)
       .then(function (result: any) {
         let list: Array<Stream> = [];
         lodash.forEach(result, function (item: any) {
@@ -1101,109 +1109,99 @@ export class IOTileCloud {
       timeout: this.Config.ENV.HTTP_TIMEOUT
     };
 
-    if (filter){
-      request.url += filter.filterString();
-    }
-
     if (headers) {
       request['headers'] = headers;
     }
-    catCloud.debug(`[IOTileCloud] Fetch request: ${request}`);
-    let that = this;
 
-    return new Promise<{} | Array<{}>>(function(resolve, reject) {
-      that.inProgressConnections += 1;
-      axios(request).then(function (response: any) {
-        catCloud.debug(`[IOTileCloud] Response: ${response}`);
-        that.inProgressConnections -= 1;
-        if (response.data['results'] !== undefined) {
-          resolve(response.data['results']);
-        } else {
-          resolve(response.data);
-        }
-      }, function (err: any) {
-        that.inProgressConnections -= 1;
-        reject(new HttpError(err));
+    // CHECKME
+    if (filter && filter.getFilter('page_size')){
+      return await this.fetchPagesFromServer(request, filter)
+    } else {
+      if (filter){
+        request.url += filter.filterString();
+      }
+
+      catCloud.debug(`[IOTileCloud] Fetch request: ${request}`);
+      let that = this;
+
+      return new Promise<{} | Array<{}>>(function(resolve, reject) {
+        that.inProgressConnections += 1;
+        axios(request).then(function (response: any) {
+          catCloud.debug(`[IOTileCloud] Response: ${response}`);
+          that.inProgressConnections -= 1;
+          if (response.data['results'] !== undefined) {
+            resolve(response.data['results']);
+          } else {
+            resolve(response.data);
+          }
+        }, function (err: any) {
+          that.inProgressConnections -= 1;
+          reject(new HttpError(err));
+        });
       });
-    });
+    }
   }
 
-  private async fetchPagesFromServer(uri: string, filter?: ApiFilter, headers?: {}) : Promise<{} | Array<{}>> {
-    if (!this._server){
-      throw new Error(`Cannot fetch ${uri}: unknown server address`);
-    }
-    let baseURL = this._server.url + uri;
+  private async fetchPagesFromServer(request: {[key: string]: any}, filter: ApiFilter) : Promise<{} | Array<{}>> {
+    let pageSize = filter.getFilter('page_size');
+    
+    if (pageSize){ 
+      catCloud.debug(`[IOTileCloud] Fetch request: ${request}`);
+      let that = this;
+      let total = 0;
+      let baseURL = request.url;
 
-    let request: {[key: string]: any} = {
-      method: 'GET',
-      url: baseURL,
-      timeout: this.Config.ENV.HTTP_TIMEOUT
-    };
-
-    if (!filter){
-      filter = new ApiFilter();
-    } else if (!filter.getFilter('page_size')){ 
-      filter.addFilter('page_size', '1000');
-    }
-    request.url += filter.filterString();
-    let pageSize = +(filter.getFilter('page_size') || 1000);
-                                                          
-    if (headers) {
-      request['headers'] = headers;
-    }
-    catCloud.debug(`[IOTileCloud] Fetch request: ${request}`);
-    let that = this;
-    let total = 0;
-
-    // Get the number of total results
-    total = await new Promise<number>(function(resolve, reject) {
-      that.inProgressConnections += 1;
-      axios(request).then(function (response: any) {
-        catCloud.debug(`[IOTileCloud] Response: ${response}`);
-        that.inProgressConnections -= 1;
-        if (response.data['count'] !== undefined) {
-          resolve(response.data['count']);
-        } else {
-          resolve(0);
-        }
-      }, function (err: any) {
-        that.inProgressConnections -= 1;
-        reject(new HttpError(err));
+      // Get the number of total results
+      total = await new Promise<number>(function(resolve, reject) {
+        that.inProgressConnections += 1;
+        axios(request).then(function (response: any) {
+          catCloud.debug(`[IOTileCloud] Response: ${response}`);
+          that.inProgressConnections -= 1;
+          if (response.data['count'] !== undefined) {
+            resolve(response.data['count']);
+          } else {
+            resolve(0);
+          }
+        }, function (err: any) {
+          that.inProgressConnections -= 1;
+          reject(new HttpError(err));
+        });
       });
-    });
 
-    let promises : Promise<{}>[] = [];
-    let count = 0;
-    let link: string;
+      let promises : Promise<{}>[] = [];
+      let count = 0;
 
-    while (count < total){
-      if (count > 0){
-        filter.addFilter('page', (Math.ceil(count/pageSize) + 1).toString(), true);    
+      while (count < total){
+        if (count > 0){
+          filter.addFilter('page', (Math.ceil(count/+pageSize) + 1).toString(), true);    
+        }
+        request.url = baseURL + filter.filterString();
+
+        promises.push(
+          new Promise<{} | Array<{}>>(function(resolve, reject) {
+            that.inProgressConnections += 1;
+            axios(request).then(function (response: any) {
+              catCloud.debug(`[IOTileCloud] Response: ${response}`);
+              that.inProgressConnections -= 1;
+              if (response.data['results'] !== undefined) {
+                resolve(response.data['results']);
+              } else {
+                resolve(response.data);
+              }
+            }, function (err: any) {
+              that.inProgressConnections -= 1;
+              reject(new HttpError(err));
+            });
+          })
+        )
+        count += +pageSize;
       }
-      request.url = baseURL + filter.filterString();
 
-      promises.push(
-        new Promise<{} | Array<{}>>(function(resolve, reject) {
-          that.inProgressConnections += 1;
-          axios(request).then(function (response: any) {
-            catCloud.debug(`[IOTileCloud] Response: ${response}`);
-            that.inProgressConnections -= 1;
-            if (response.data['results'] !== undefined) {
-              resolve(response.data['results']);
-            } else {
-              resolve(response.data);
-            }
-          }, function (err: any) {
-            that.inProgressConnections -= 1;
-            reject(new HttpError(err));
-          });
-        })
-      )
-      count += pageSize;
+      let result = await Promise.all(promises);
+      return lodash.flatten(result);    
+    } else {
+      throw new Error(`Invalid page size given in filter args: ${filter.filterString()}`);
     }
-
-    let result = await Promise.all(promises);
-    return lodash.flatten(result);
   }
 
   private async postToServer(uri: string, data?: {}) : Promise<{} | Array<{}>> {
@@ -1364,7 +1362,7 @@ export class IOTileCloud {
       filter.addFilter('device', deviceSlug);
     }
 
-    let acks = <Array<any>>await this.fetchPagesFromServer('/streamer/', filter);
+    let acks = <Array<any>>await this.fetchFromServer('/streamer/', filter);
 
     return acks.map((val) => {return {
       deviceSlug: val['device'],
