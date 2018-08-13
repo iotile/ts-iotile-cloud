@@ -1113,7 +1113,6 @@ export class IOTileCloud {
       request['headers'] = headers;
     }
 
-    // CHECKME
     if (filter && filter.getFilter('page_size')){
       return await this.fetchPagesFromServer(request, filter)
     } else {
