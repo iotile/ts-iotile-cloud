@@ -18,8 +18,8 @@ export enum Response {
 
 export class MockCloud 
 {
-    private MockAdapter: any;
-    private cloud: IOTileCloud;
+    public MockAdapter: any;
+    public cloud: IOTileCloud;
     public projects: Project[];
     public devices: Device[];
     public variables:  Variable[];
@@ -160,7 +160,7 @@ export class MockCloud
     }
 
     public getStream(slug: string) : Stream {
-        for (let stream of streams) {
+        for (let stream of this.streams) {
             if (stream.slug == slug) {
                 return new Stream(stream);
             }
@@ -170,7 +170,7 @@ export class MockCloud
     }
 
     public getDevice(slug: string): Device {
-        for (let device of devices) {
+        for (let device of this.devices) {
             if (device.slug == slug) {
                 return new Device(device);
             }
@@ -188,7 +188,6 @@ export class MockCloud
         this.MockAdapter.onPatch(url, data).reply(Response, responseData);
     }
 
-    // TODO: regex to handle filters
     public defaultSetup() {
         this.MockAdapter = new MockAdapter(axios);
 
