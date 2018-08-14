@@ -13,6 +13,7 @@ export class DataPage extends Page {
 }
 
 export class DataPoint {
+  public id?: number;
   public stream?: string;
   public timestamp: Date;
   public rawValue?: number;
@@ -24,6 +25,9 @@ export class DataPoint {
 
   constructor(data: any = {}) {
     this.timestamp = new Date(data.timestamp);
+    if ('id' in data) {
+      this.id = data.id;
+    }
     if ('stream' in data) {
       // Only getData returns a stream slug
       this.stream = data.stream;

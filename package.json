@@ -1,6 +1,6 @@
 {
   "name": "@iotile/iotile-cloud",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A typescript library for interfacing with the IOTile Cloud API",
   "main": "dist/iotile-cloud.umd.js",
   "types": "dist/types/index.d.ts",
@@ -57,10 +57,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 50,
-        "functions": 55,
-        "lines": 65,
-        "statements": 65
+        "branches": 45,
+        "functions": 40,
+        "lines": 55,
+        "statements": 55
       }
     },
     "collectCoverage": true,

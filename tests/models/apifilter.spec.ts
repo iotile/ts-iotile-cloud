@@ -43,4 +43,17 @@ describe('ApiFilter', () => {
     expect(filter.filterString()).toEqual('?foo=bar&abc=9');
   });
 
+  it('check ApiFilter get filter', () => {
+    let filter: ApiFilter = new ApiFilter();
+    filter.addFilter('foo', 'bar');
+    let value = filter.getFilter('foo');
+    expect(value).toEqual('bar');
+  });
+
+  it('check ApiFilter get undefined filter', () => {
+    let filter: ApiFilter = new ApiFilter();
+    let value = filter.getFilter('foo');
+    expect(value).not.toBeDefined();
+  });
+
 });

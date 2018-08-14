@@ -18,8 +18,8 @@ export enum Response {
 
 export class MockCloud 
 {
-    private MockAdapter: any;
-    private cloud: IOTileCloud;
+    public MockAdapter: any;
+    public cloud: IOTileCloud;
     public projects: Project[];
     public devices: Device[];
     public variables:  Variable[];
@@ -160,7 +160,7 @@ export class MockCloud
     }
 
     public getStream(slug: string) : Stream {
-        for (let stream of streams) {
+        for (let stream of this.streams) {
             if (stream.slug == slug) {
                 return new Stream(stream);
             }
@@ -170,7 +170,7 @@ export class MockCloud
     }
 
     public getDevice(slug: string): Device {
-        for (let device of devices) {
+        for (let device of this.devices) {
             if (device.slug == slug) {
                 return new Device(device);
             }
@@ -188,19 +188,18 @@ export class MockCloud
         this.MockAdapter.onPatch(url, data).reply(Response, responseData);
     }
 
-
     public defaultSetup() {
         this.MockAdapter = new MockAdapter(axios);
 
         let that = this;
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/project/').reply(200, that.buildListResponse([water_proj, soil_proj]));
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/org/').reply(200, that.buildListResponse([arch_internal_org, arch_systems_org]));
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/device/?page_size=1000').reply(200, that.buildListResponse(devices));
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/stream/?page_size=3000').reply(200, that.buildListResponse(streams));
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/variable/').reply(200, that.buildListResponse(variables));
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/vartype/').reply(200, that.buildListResponse(vartypes));
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/sg/').reply(200, that.buildListResponse(sg));
-        this.MockAdapter.onGet('https://iotile.cloud/api/v1/pt/').reply(200, that.buildListResponse(project_templates));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/project/^\?([\w-]+(=[\w-]*)?(&[\w-]+(=[\w-]*)?)*)?$').reply(200, that.buildListResponse([water_proj, soil_proj]));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/org/^\?([\w-]+(=[\w-]*)?(&[\w-]+(=[\w-]*)?)*)?$').reply(200, that.buildListResponse([arch_internal_org, arch_systems_org]));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/device/^\?([\w-]+(=[\w-]*)?(&[\w-]+(=[\w-]*)?)*)?$').reply(200, that.buildListResponse(devices));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/stream/^\?([\w-]+(=[\w-]*)?(&[\w-]+(=[\w-]*)?)*)?$').reply(200, that.buildListResponse(streams));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/variable/^\?([\w-]+(=[\w-]*)?(&[\w-]+(=[\w-]*)?)*)?$').reply(200, that.buildListResponse(variables));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/vartype/^\?([\w-]+(=[\w-]*)?(&[\w-]+(=[\w-]*)?)*)?$').reply(200, that.buildListResponse(vartypes));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/sg/^\?([\w-]+(=[\w-]*)?(&[\w-]+(=[\w-]*)?)*)?$').reply(200, that.buildListResponse(sg));
+        this.MockAdapter.onGet('https://iotile.cloud/api/v1/pt/^\?([\w-]+(=[\w-]*)?(&[\w-]+(=[\w-]*)?)*)?$').reply(200, that.buildListResponse(project_templates));
 
         this.MockAdapter.onGet(`https://iotile.cloud/api/v1/org/${arch_internal_org.slug}/membership/`).reply(200, arch_internal_membership);
         this.MockAdapter.onGet(`https://iotile.cloud/api/v1/org/${arch_systems_org.slug}/membership/`).reply(200, arch_systems_membership);
