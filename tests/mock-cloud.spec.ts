@@ -57,8 +57,7 @@ describe('module: iotile.cloud, service: MockCloud', function () {
     expect(stream1.device).toEqual('d--0000-0000-0000-0005');
   });
 
-  // FIXME: how do MockCloud and IOTileCloud hook up?
-  xit('should mock endpoints correctly', async () => {
+  it('should mock endpoints correctly', async () => {
       mockCloud.defaultSetup();
 
       spyOn(mockCloud.MockAdapter, 'onGet').and.callThrough();
@@ -69,8 +68,14 @@ describe('module: iotile.cloud, service: MockCloud', function () {
       let devices = await mockCloud.cloud.fetchAllDevices();
       expect(devices.length).toBe(7);
 
-      let devices2 = await mockCloud.cloud.fetchAllDevices(filter);
-      expect(devices2.length).toBe(7);
+      let devices_param = await mockCloud.cloud.fetchAllDevices(filter);
+      expect(devices_param.length).toBe(7);
+
+      let new_filter = new ApiFilter();
+      filter.addFilter('page_size', '2');
+
+      let devices_paginated = await mockCloud.cloud.fetchAllDevices(new_filter);
+      expect(devices_paginated.length).toBe(7);
   });
   
 });
