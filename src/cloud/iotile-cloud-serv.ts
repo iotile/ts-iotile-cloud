@@ -1145,16 +1145,17 @@ export class IOTileCloud {
     let pageSize = filter.getFilter('page_size');
     
     if (pageSize){ 
-      catCloud.debug(`[IOTileCloud] Fetch request: ${request}`);
+      catCloud.info(`[IOTileCloud] Fetch request: ${request}`);
       let that = this;
       let total = 0;
       let baseURL = request.url;
+      request.url = baseURL + filter.filterString();
 
       // Get the number of total results
       total = await new Promise<number>(function(resolve, reject) {
         that.inProgressConnections += 1;
         axios(request).then(function (response: any) {
-          catCloud.debug(`[IOTileCloud] Response: ${response}`);
+          catCloud.info(`[IOTileCloud] Response: ${response}`);
           that.inProgressConnections -= 1;
           if (response.data['count'] !== undefined) {
             resolve(response.data['count']);
