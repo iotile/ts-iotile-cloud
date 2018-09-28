@@ -1,4 +1,4 @@
-import { Project, Org, Stream, Streamer, Device, Variable, SensorGraph, VarType, 
+import { Project, Org, Stream, Streamer, StreamerReport, Device, Variable, SensorGraph, VarType, 
     HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership, ServerInformation, DataPoint, Note, ApiFilter} 
     from "../models";
 import { startsWith, ArgumentError, BlockingEvent, UserNotLoggedInError} 
@@ -1350,6 +1350,24 @@ export class IOTileCloud {
         let newStreamer = new Streamer(item);
         resolve(newStreamer);
       }, function(err) {
+        reject(err);
+      });
+    });
+  }
+
+  public async fetchStreamerReport(filter: ApiFilter) {
+    let that = this;
+
+    return new Promise<StreamerReport[]>(function(resolve, reject) {
+      that.fetchFromServer('/streamer/report/', filter)
+      .then(function (result: any) {
+        let list: Array<StreamerReport> = [];
+        lodash.forEach(result, function (item: any) {
+          let newReport = new StreamerReport(item);
+          list.push(newReport);
+        });
+        resolve(list);
+      }).catch(function (err) {
         reject(err);
       });
     });

@@ -30,6 +30,7 @@ export * from './server-information';
 export * from './stats';
 export * from './stream';
 export * from './streamer';
+export * from './streamerreport';
 export * from './unit';
 export * from './user';
 export * from './variable';
