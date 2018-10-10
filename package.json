@@ -74,8 +74,7 @@
     "axios-mock-adapter": "^1.15.0",
     "iotile-common": "0.0.9",
     "lodash.clonedeep": "^4.5.0",
-    "lodash.merge": "^4.6.1",
-    "typescript-logging": "^0.6.2"
+    "lodash.merge": "^4.6.1"
   },
   "devDependencies": {
     "@types/jest": "^22.0.0",
@@ -98,7 +97,8 @@
     "tslint-config-prettier": "^1.1.0",
     "tslint-immutable": "^4.5.1",
     "typedoc": "^0.11.1",
-    "typescript": "^2.4.1"
+    "typescript": "^2.4.1",
+    "typescript-logging": "^0.6.3"
   },
   "prettier": {
     "singleQuote": true
