@@ -76,6 +76,9 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.1"
   },
+  "peerDependencies": {
+    "typescript-logging":"^0.6.3"
+  },
   "devDependencies": {
     "@types/jest": "^22.0.0",
     "@types/node": "^9.3.0",
