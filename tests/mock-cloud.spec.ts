@@ -32,6 +32,7 @@ describe('module: iotile.cloud, service: MockCloud', function () {
 
   beforeEach(function () {
     mockCloud = new MockCloud(Cloud);
+    mockCloud.defaultSetup();
     });
 
   it('should do something', function () {
@@ -40,8 +41,6 @@ describe('module: iotile.cloud, service: MockCloud', function () {
   });
 
   it('should be able to get a device', function () {
-    mockCloud.defaultSetup();
-
     let dev1 = mockCloud.getDevice('d--0000-0000-0000-0003');
     expect(dev1).toBeDefined();
     expect(dev1.slug).toEqual('d--0000-0000-0000-0003');
@@ -49,8 +48,6 @@ describe('module: iotile.cloud, service: MockCloud', function () {
   });
 
   it('should be able to get a stream', function () {
-    mockCloud.defaultSetup();
-
     let stream1 = mockCloud.getStream('s--0000-006e--0000-0000-0000-0005--100b');
     expect(stream1).toBeDefined();
     expect(stream1.slug).toEqual('s--0000-006e--0000-0000-0000-0005--100b');
@@ -58,7 +55,36 @@ describe('module: iotile.cloud, service: MockCloud', function () {
   });
 
   it('should mock endpoints correctly', async () => {
-      mockCloud.defaultSetup();
+      spyOn(mockCloud.MockAdapter, 'onGet').and.callThrough();
+
+      let devices = await mockCloud.cloud.fetchAllDevices();
+      expect(devices.length).toBe(7);
+  });
+
+  it('should handle pagination', async () => {
+      spyOn(mockCloud.MockAdapter, 'onGet').and.callThrough();
+
+      let filter = new ApiFilter();
+      filter.addFilter('page_size', '500');
+
+      let devices = await mockCloud.cloud.fetchAllDevices();
+      expect(devices.length).toBe(7);
+
+      let devices_param = await mockCloud.cloud.fetchAllDevices(filter);
+      expect(devices_param.length).toBe(7);
+
+      let new_filter = new ApiFilter();
+      new_filter.addFilter('page_size', '2');
+
+      let devices_paginated = await mockCloud.cloud.fetchAllDevices(new_filter);
+      // NB: since the mock endpoints are dumb, they resend all 7 devices on each call
+      // so since 7 devices / page_size of 2 = 4 calls, we get 7 * 4 = 28 returned
+      expect(devices_paginated.length).toBe(28);
+  });
+  
+
+  it('should clear page filters between requests', async () => {
+    mockCloud.defaultSetup();
 
       spyOn(mockCloud.MockAdapter, 'onGet').and.callThrough();
 
@@ -72,10 +98,16 @@ describe('module: iotile.cloud, service: MockCloud', function () {
       expect(devices_param.length).toBe(7);
 
       let new_filter = new ApiFilter();
-      filter.addFilter('page_size', '2');
+      new_filter.addFilter('page_size', '2');
 
       let devices_paginated = await mockCloud.cloud.fetchAllDevices(new_filter);
-      expect(devices_paginated.length).toBe(7);
+      // NB: since the mock endpoints are dumb, they resend all 7 devices on each call
+      // so since 7 devices / page_size of 2 = 4 calls, we get 7 * 4 = 28 returned
+      expect(devices_paginated.length).toBe(28);
+      expect(new_filter.getFilter('page')).toBe(3);
+
+      devices_paginated = await mockCloud.cloud.fetchAllDevices(new_filter);
+      expect(devices_paginated.length).toBe(28);
   });
   
 });
