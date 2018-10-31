@@ -188,6 +188,7 @@ export class MockCloud
         this.MockAdapter.onPatch(url, data).reply(Response, responseData);
     }
 
+    // FIXME: we need a helper to mock pagination, and the onGet to parse page_size & page filters
     public defaultSetup() {
         this.MockAdapter = new MockAdapter(axios);
 

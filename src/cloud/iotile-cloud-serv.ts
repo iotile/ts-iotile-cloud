@@ -1170,6 +1170,7 @@ export class IOTileCloud {
 
       let promises : Promise<{}>[] = [];
       let count = 0;
+      filter.removeFilter('page');
 
       while (count < total){
         if (count >= 0){
