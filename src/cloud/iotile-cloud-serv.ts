@@ -1126,13 +1126,13 @@ export class IOTileCloud {
         request.url += filter.filterString();
       }
 
-      catCloud.debug(`[IOTileCloud] Fetch request: ${request}`);
+      catCloud.debug(`[IOTileCloud] Fetch request: ${JSON.stringify(request)}`);
       let that = this;
 
       return new Promise<{} | Array<{}>>(function(resolve, reject) {
         that.inProgressConnections += 1;
         axios(request).then(function (response: any) {
-          catCloud.debug(`[IOTileCloud] Response: ${response}`);
+          catCloud.debug(`[IOTileCloud] Response: ${JSON.stringify(response)}`);
           that.inProgressConnections -= 1;
           if (response.data['results'] !== undefined) {
             resolve(response.data['results']);
@@ -1150,8 +1150,11 @@ export class IOTileCloud {
   private async fetchPagesFromServer(request: {[key: string]: any}, filter: ApiFilter) : Promise<{} | Array<{}>> {
     let pageSize = filter.getFilter('page_size');
     
-    if (pageSize){ 
-      catCloud.info(`[IOTileCloud] Fetch request: ${request}`);
+    if (pageSize){
+      // make sure we're starting from the beginning
+      filter.removeFilter('page');
+
+      catCloud.info(`[IOTileCloud] Fetch request: ${JSON.stringify(request)}`);
       let that = this;
       let total = 0;
       let baseURL = request.url;
@@ -1161,7 +1164,7 @@ export class IOTileCloud {
       total = await new Promise<number>(function(resolve, reject) {
         that.inProgressConnections += 1;
         axios(request).then(function (response: any) {
-          catCloud.info(`[IOTileCloud] Response: ${response}`);
+          catCloud.info(`[IOTileCloud] Response: ${JSON.stringify(response)}`);
           that.inProgressConnections -= 1;
           if (response.data['count'] !== undefined) {
             resolve(response.data['count']);
@@ -1176,7 +1179,6 @@ export class IOTileCloud {
 
       let promises : Promise<{}>[] = [];
       let count = 0;
-      filter.removeFilter('page');
 
       while (count < total){
         if (count >= 0){
