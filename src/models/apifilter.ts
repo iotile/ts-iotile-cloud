@@ -39,4 +39,13 @@ export class ApiFilter {
       }
       return value;
     }
+
+    public copy(): ApiFilter {
+      let copy = new ApiFilter();
+      for (let filter of this.filters){
+        let [key, val] = filter.split('=');
+        copy.addFilter(key, val);
+      }
+      return copy;
+    }
   }

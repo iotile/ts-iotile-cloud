@@ -104,7 +104,8 @@ describe('module: iotile.cloud, service: MockCloud', function () {
       // NB: since the mock endpoints are dumb, they resend all 7 devices on each call
       // so since 7 devices / page_size of 2 = 4 calls, we get 7 * 4 = 28 returned
       expect(devices_paginated.length).toBe(28);
-      expect(new_filter.getFilter('page')).toBe(3);
+      // filters passed in are not globally modified
+      expect(new_filter.getFilter('page')).not.toBeDefined();
 
       devices_paginated = await mockCloud.cloud.fetchAllDevices(new_filter);
       expect(devices_paginated.length).toBe(28);
