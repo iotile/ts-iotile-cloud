@@ -99,6 +99,7 @@ describe('module: iotile.cloud, service: MockCloud', function () {
 
       let new_filter = new ApiFilter();
       new_filter.addFilter('page_size', '2');
+      let original_new_filter = new_filter;
 
       let devices_paginated = await mockCloud.cloud.fetchAllDevices(new_filter);
       // NB: since the mock endpoints are dumb, they resend all 7 devices on each call
@@ -106,9 +107,12 @@ describe('module: iotile.cloud, service: MockCloud', function () {
       expect(devices_paginated.length).toBe(28);
       // filters passed in are not globally modified
       expect(new_filter.getFilter('page')).not.toBeDefined();
+      expect(new_filter).toEqual(original_new_filter);
 
       devices_paginated = await mockCloud.cloud.fetchAllDevices(new_filter);
       expect(devices_paginated.length).toBe(28);
+      expect(new_filter.getFilter('page')).not.toBeDefined();
+      expect(new_filter).toEqual(original_new_filter);
   });
   
 });
