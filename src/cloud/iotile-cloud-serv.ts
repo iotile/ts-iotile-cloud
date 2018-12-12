@@ -404,6 +404,8 @@ export class IOTileCloud {
     return new Promise<Device[]>(function(resolve, reject) {
       if (!filter){
         filter = new ApiFilter();
+      } else {
+        filter = filter.copy();
       }
       filter.addFilter('project', projectId, true);
       that.fetchFromServer('/device/', filter)
@@ -526,6 +528,8 @@ export class IOTileCloud {
     return new Promise<Stream[]>(function(resolve, reject) {
       if (!filter){
         filter = new ApiFilter();
+      } else {
+        filter = filter.copy();
       }
       filter.addFilter('project', projectId, true);
       that.fetchFromServer(uri, filter)
@@ -1114,9 +1118,11 @@ export class IOTileCloud {
     }
 
     if (filter && filter.getFilter('page_size')){
+      filter = filter.copy();
       return await this.fetchPagesFromServer(request, filter)
     } else {
       if (filter){
+        filter = filter.copy();
         request.url += filter.filterString();
       }
 

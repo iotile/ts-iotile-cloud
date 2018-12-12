@@ -56,4 +56,19 @@ describe('ApiFilter', () => {
     expect(value).not.toBeDefined();
   });
 
+  it('check ApiFilter copy filter', () => {
+    let filter: ApiFilter = new ApiFilter();
+    filter.addFilter('foo', 'bar');
+    filter.addFilter('abc', '5');
+    filter.addFilter('abc', '9', true);
+    let new_filter = filter.copy();
+    expect(filter.filterString()).toEqual('?foo=bar&abc=9');
+    expect(new_filter.filterString()).toEqual('?foo=bar&abc=9');
+    
+    new_filter.addFilter('diverge', 'new_info');
+    filter.removeFilter('foo');
+    expect(filter.filterString()).toEqual('?abc=9');
+    expect(new_filter.filterString()).toEqual('?foo=bar&abc=9&diverge=new_info');
+  });
+
 });
