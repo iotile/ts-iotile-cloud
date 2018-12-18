@@ -294,9 +294,9 @@ export class IOTileCloud {
    *
    * Returns an array of OrgMetaData objects with all organizations retrieved.
    */
-  public async fetchOrgMetaData() : Promise<OrgMetaData[]>{
+  public async fetchOrgMetaData(filter?: ApiFilter) : Promise<OrgMetaData[]>{
     let orgs = await this.fetchOrgs();
-    let projects = await this.fetchProjects();
+    let projects = await this.fetchProjects(filter);
 
     let projectMap: {[key: string]: Project} = {};
     let orgMap : {[key: string]: OrgMetaData} = {};
