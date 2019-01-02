@@ -4,7 +4,7 @@ import {StreamDelta, DeviceDelta, Device, Stream, Project, StreamOutputUnitsDelt
 import {DeltaStatus, SerializedDelta} from "../base/model-delta";
 import {DataConflictError, streamInDevice} from "./cloud-utils";
 import {Category} from "typescript-logging";
-import {endsWith, UnknownKeyError} from "iotile-common";
+import {endsWith, UnknownKeyError} from "@iotile/iotile-common";
 var merge = require('lodash.merge');
 
 /*

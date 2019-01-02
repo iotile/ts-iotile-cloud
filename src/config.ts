@@ -1,10 +1,5 @@
-import {Category,CategoryLogger,CategoryServiceFactory,
-    CategoryConfiguration,LogLevel} from "typescript-logging";
- 
-// Optionally change default settings, in this example set default logging to Info.
-// Without changing configuration, categories will log to Error.
-CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
+import {Category} from "typescript-logging";
  
 // Create categories, they will autoregister themselves, one category without parent (root) and a child category.
-export const catService = new Category("iotile.cloud");
-export const catCloud = new Category("IOTileCloud", catService);
+export const catService: Category = new Category("iotile.cloud");
+export const catCloud: Category = new Category("IOTileCloud", catService);

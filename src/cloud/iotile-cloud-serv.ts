@@ -1,9 +1,10 @@
 import { Project, Org, Stream, Streamer, StreamerReport, Device, Variable, SensorGraph, VarType, 
     HttpError, User, ProjectTemplate, PropertyTemplate, Property, Membership, ServerInformation, DataPoint, Note, ApiFilter} 
     from "../models";
-import { startsWith, ArgumentError, BlockingEvent, UserNotLoggedInError} 
-    from "iotile-common";
+import { startsWith, ArgumentError, BlockingEvent, UserNotLoggedInError, LoggingBase} 
+    from "@iotile/iotile-common";
 import {catCloud} from "../config";
+
 let axios = require("axios");
 let lodash = require('lodash');
 
@@ -41,7 +42,7 @@ export interface OrgMetaData {
     projects: ProjectMetaData[];
 }
 
-export class IOTileCloud {
+export class IOTileCloud extends LoggingBase {
   private Config: any;
   private _server?: ServerInformation;
   private event: BlockingEvent;
@@ -50,6 +51,8 @@ export class IOTileCloud {
   public inProgressConnections: number;
 
   constructor (Config: any) {
+    super(catCloud);
+
     this.Config = Config;
 
     this.inProgressConnections = 0;
@@ -68,7 +71,7 @@ export class IOTileCloud {
       }
     }
 
-    catCloud.info('No Default Server specified; targeting iotile.cloud');
+    this.logWarning('No Default Server specified; targeting iotile.cloud');
     return {
       "shortName": "PRODUCTION",
       "longName": "Production Server",
@@ -318,7 +321,10 @@ export class IOTileCloud {
       let orgSlug = project.orgSlug;
 
       if (!(orgSlug in orgMap)) {
-        catCloud.debug(`Received a project from IOTile.cloud that did not have an org: ${project} ${orgSlug}`);
+        this.logError('Received a project from IOTile.cloud that did not have an org', {
+                          project: project,
+                          orgSlug: orgSlug
+                        });
         continue;
       }
 
@@ -1083,12 +1089,14 @@ export class IOTileCloud {
     if (headers) {
       request['headers'] = headers;
     }
-    catCloud.debug(`[IOTileCloud] Delete request: ${request}`);
+    
+    this.logTrace(`Delete request: ${uri}`);
     let that = this;
     return new Promise<{} | Array<{}>>(function(resolve, reject) {
       that.inProgressConnections += 1;
       axios(request).then(function (response: any) {
-        catCloud.debug(`[IOTileCloud] Response: ${response}`);
+        that.logTrace('Delete response', {request: request, response: response});
+        
         that.inProgressConnections -= 1;
         if (response.data['results'] !== undefined) {
           resolve(response.data['results']);
@@ -1126,13 +1134,14 @@ export class IOTileCloud {
         request.url += filter.filterString();
       }
 
-      catCloud.debug(`[IOTileCloud] Fetch request: ${JSON.stringify(request)}`);
+      this.logTrace(`Fetch request: ${request.url}`);
       let that = this;
 
       return new Promise<{} | Array<{}>>(function(resolve, reject) {
         that.inProgressConnections += 1;
         axios(request).then(function (response: any) {
-          catCloud.debug(`[IOTileCloud] Response: ${JSON.stringify(response)}`);
+          that.logTrace('Fetch Response', {request: request, respones: response});
+
           that.inProgressConnections -= 1;
           if (response.data['results'] !== undefined) {
             resolve(response.data['results']);
@@ -1154,17 +1163,18 @@ export class IOTileCloud {
       // make sure we're starting from the beginning
       filter.removeFilter('page');
 
-      catCloud.info(`[IOTileCloud] Fetch request: ${JSON.stringify(request)}`);
       let that = this;
       let total = 0;
       let baseURL = request.url;
       request.url = baseURL + filter.filterString();
 
+      this.logTrace(`Fetch pages request: ${request.url}`);
+
       // Get the number of total results
       total = await new Promise<number>(function(resolve, reject) {
         that.inProgressConnections += 1;
         axios(request).then(function (response: any) {
-          catCloud.info(`[IOTileCloud] Response: ${JSON.stringify(response)}`);
+          that.logTrace('Response', {request: request, response: response});
           that.inProgressConnections -= 1;
           if (response.data['count'] !== undefined) {
             resolve(response.data['count']);
@@ -1190,7 +1200,6 @@ export class IOTileCloud {
           new Promise<{} | Array<{}>>(function(resolve, reject) {
             that.inProgressConnections += 1;
             axios(request).then(function (response: any) {
-              catCloud.debug(`[IOTileCloud] Response: ${response}`);
               that.inProgressConnections -= 1;
               if (response.data['results'] !== undefined) {
                 resolve(response.data['results']);
@@ -1226,14 +1235,14 @@ export class IOTileCloud {
       request['data'] = data;
     }
 
-    catCloud.debug(`[IOTileCloud] Post request: ${request}`);
+    this.logTrace(`Post request: ${request.url}`);
 
     let that = this;
     return new Promise<{} | Array<{}>>(function(resolve, reject) {
       that.inProgressConnections += 1;
 
       axios(request).then(function (response: any) {
-        catCloud.debug(`[IOTileCloud] Response: ${response}`);
+        that.logTrace('Post response', {request: request, response:response});
         that.inProgressConnections -= 1;
 
         if (response.data['results'] !== undefined) {
@@ -1285,7 +1294,6 @@ export class IOTileCloud {
 
      
       try {
-        
         let s3Response = await axios({
           method: 'POST',
           url: resp['url'],
@@ -1299,8 +1307,9 @@ export class IOTileCloud {
         if (s3Response.status == 204){
           await this.postToServer(`/note/${note_id}/uploadsuccess/`, {"name": file.name, "uuid": resp['uuid']});
         }
-      } catch (err){
-        catCloud.error(`S3 Upload failed on ${file.name}`, err);
+      } catch (err) {
+        this.logException(`S3 Upload failed on ${file.name}`, err);
+        throw err;
       }
     }
   }

@@ -1,4 +1,4 @@
-import {guid} from "iotile-common";
+import {guid} from "@iotile/iotile-common";
 
 export enum DeltaStatus {
     Applies = 0,
