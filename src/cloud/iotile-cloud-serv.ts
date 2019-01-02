@@ -1140,7 +1140,7 @@ export class IOTileCloud extends LoggingBase {
       return new Promise<{} | Array<{}>>(function(resolve, reject) {
         that.inProgressConnections += 1;
         axios(request).then(function (response: any) {
-          that.logTrace('Fetch Response', {request: request, respones: response});
+          that.logTrace('Fetch Response', {request: request, response: response});
 
           that.inProgressConnections -= 1;
           if (response.data['results'] !== undefined) {

@@ -72,7 +72,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "axios-mock-adapter": "^1.15.0",
-    "@iotile/iotile-common": "0.0.11",
+    "@iotile/iotile-common": "0.0.12",
     "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.1"
   },
