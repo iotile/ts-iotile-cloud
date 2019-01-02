@@ -1,6 +1,6 @@
 {
   "name": "@iotile/iotile-cloud",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "A typescript library for interfacing with the IOTile Cloud API",
   "main": "dist/iotile-cloud.umd.js",
   "types": "dist/types/index.d.ts",
@@ -72,14 +72,15 @@
   "dependencies": {
     "axios": "^0.18.0",
     "axios-mock-adapter": "^1.15.0",
-    "@iotile/iotile-common": "0.0.12",
     "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.1"
   },
   "peerDependencies": {
+    "@iotile/iotile-common": "0.0.12",
     "typescript-logging": "^0.6.3"
   },
   "devDependencies": {
+    "@iotile/iotile-common": "0.0.12",
     "@types/jest": "^22.0.0",
     "@types/node": "^9.3.0",
     "cz-conventional-changelog": "^2.1.0",

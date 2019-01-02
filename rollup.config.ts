@@ -16,7 +16,7 @@ export default {
   ],
   sourcemap: true,
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: ['typescript-logging'],
+  external: ['typescript-logging', "@iotile/iotile-common"],
   watch: {
     include: 'src/**',
   },
