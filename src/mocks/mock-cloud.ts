@@ -5,7 +5,7 @@
 import {Stream, Device, Project, Variable, SensorGraph, VarType, ProjectTemplate }
     from "../models";
 import {IOTileCloud} from "../cloud/iotile-cloud-serv";
-import {ArgumentError, delay} from "iotile-common";
+import {ArgumentError, delay} from "@iotile/iotile-common";
 let clonedeep = require("lodash.clonedeep");
 let MockAdapter = require("axios-mock-adapter");
 let axios = require("axios");

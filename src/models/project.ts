@@ -8,7 +8,7 @@ import {DataPoint} from "./datapoint";
 import {Unit} from "./unit";
 import {Org} from "./org";
 import {Mdo} from "./mdo";
-import {ArgumentError, DataCorruptedError, InvalidDataError} from "iotile-common";
+import {ArgumentError, DataCorruptedError, InvalidDataError} from "@iotile/iotile-common";
 import { ProjectTemplate, ProjectTemplateDictionary } from "./projecttemplate";
 
 export class Project {

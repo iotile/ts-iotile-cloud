@@ -3,7 +3,7 @@ import {DataPoint} from "./datapoint";
 import {Mdo} from "./mdo";
 import {Stats} from "./stats";
 import {ModelDelta, DeltaStatus} from "../base/model-delta";
-import {ArgumentError} from "iotile-common";
+import {ArgumentError} from "@iotile/iotile-common";
 
 export interface StreamDictionary {
   [index: string]: Stream;
