@@ -1,5 +1,10 @@
 # Release Notes for @iotile/iotile-cloud
 
+## 0.0.14
+
+- Move @iotile/iotile-common to an external peer dependency so that we only have a single
+  copy of it in projects that include both @iotile/iotile-device and @iotile/iotile-common
+
 ## v0.0.13
 
 - Move to use `typescript-logging` for all logging.
