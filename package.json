@@ -76,11 +76,11 @@
     "lodash.merge": "^4.6.1"
   },
   "peerDependencies": {
-    "@iotile/iotile-common": "0.0.12",
+    "@iotile/iotile-common": "0.1.0",
     "typescript-logging": "^0.6.3"
   },
   "devDependencies": {
-    "@iotile/iotile-common": "0.0.12",
+    "@iotile/iotile-common": "0.1.0",
     "@types/jest": "^22.0.0",
     "@types/node": "^9.3.0",
     "cz-conventional-changelog": "^2.1.0",
