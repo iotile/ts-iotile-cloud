@@ -89,6 +89,6 @@ describe('DataFilterArgsTest', () => {
     let filter_string = args.buildFilterString();
     let end = args.endDate.toISOString();
     expect(filter_string).toEqual("?end="+end+"&lastn=10");
-    expect(args.buildFilterLabel()).toEqual(" to "+args.endDate.toLocaleDateString()+" last 10 entries");
+    expect(args.buildFilterLabel()).toEqual(" to "+args.endDate.toLocaleDateString('en-US')+" last 10 entries");
   });
 });
