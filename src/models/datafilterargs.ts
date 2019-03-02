@@ -56,10 +56,10 @@ export class DataFilterArgs {
   public buildFilterLabel(): string {
     let filterLabel: string = '';
     if (this.startDate) {
-      filterLabel += ' from ' + this.startDate.toLocaleDateString();
+      filterLabel += ' from ' + this.startDate.toLocaleDateString('en-US');
     }
     if (this.endDate) {
-      filterLabel += ' to ' + this.endDate.toLocaleDateString();
+      filterLabel += ' to ' + this.endDate.toLocaleDateString('en-US');
     }
     if (this.lastN) {
       filterLabel += ' last ' + this.lastN + ' entries';

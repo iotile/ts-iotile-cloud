@@ -4,10 +4,12 @@ import { Project, Org, Stream, Streamer, StreamerReport, Device, Variable, Senso
 import { startsWith, ArgumentError, BlockingEvent, UserNotLoggedInError, LoggingBase} 
     from "@iotile/iotile-common";
 import {catCloud} from "../config";
+import { LogLevel } from "typescript-logging";
 
 let axios = require("axios");
 let lodash = require('lodash');
 
+const HTTP_TIMEOUT_DEFAULT = 30000;
 
 /**
  * @ngdoc overview
@@ -42,31 +44,59 @@ export interface OrgMetaData {
     projects: ProjectMetaData[];
 }
 
+export interface CloudEnvConfig {
+  LOG_LEVEL: LogLevel;
+  HTTP_TIMEOUT: number;
+  SERVER_URLS: [ServerInformation];
+}
+
+export interface CloudConfig {
+  ENV: Partial<CloudEnvConfig>;
+}
+
 export class IOTileCloud extends LoggingBase {
-  private Config: any;
+  private Config: CloudConfig;
   private _server?: ServerInformation;
   private event: BlockingEvent;
   public initialized: Promise<void>;
 
   public inProgressConnections: number;
 
-  constructor (Config: any) {
+  constructor(Config: CloudConfig) {
     super(catCloud);
 
-    this.Config = Config;
+    this.Config = this.initConfig(Config);
 
     this.inProgressConnections = 0;
     this.event = new BlockingEvent();
     this.initialized = this.event.wait();
+
+    this.server = this.defaultServer();
+  }
+
+  private initConfig(Config: CloudConfig): CloudConfig {
+    let initializedConfig: CloudConfig = Object.assign({ ENV: {} }, Config);
+
+
+    if (initializedConfig.ENV.LOG_LEVEL) {
+      this.setLogLevel(initializedConfig.ENV.LOG_LEVEL, true);
+    }
+
+    if (!initializedConfig.ENV.HTTP_TIMEOUT) {
+      this.logWarning(`No config HTTP_TIMEOUT specified, using default value of ${HTTP_TIMEOUT_DEFAULT}`);
+      initializedConfig.ENV.HTTP_TIMEOUT = HTTP_TIMEOUT_DEFAULT;
+    }
+
+    return initializedConfig
   }
 
   public serverList(): ServerInformation[] {
-    return this.Config.ENV.SERVER_URLS;
+    return lodash.get(this.Config, 'ENV.SERVER_URLS', []);
   }
 
   public defaultServer(): ServerInformation {
     for (let server of this.serverList()){
-      if ("default" in server) {
+      if (lodash.get(server, 'default')) {
         return server;
       }
     }
