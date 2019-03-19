@@ -115,4 +115,11 @@ export class User {
         }
         return this.isStaff;
     }
+
+    public canResetDevice(orgSlug: string): boolean {
+        if (orgSlug in this.orgRoles){
+            return this.isStaff || this.orgRoles[orgSlug].permissions['can_reset_device'] || false;
+        }
+        return this.isStaff;
+    }
 }
