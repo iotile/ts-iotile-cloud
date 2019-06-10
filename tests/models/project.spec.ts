@@ -78,6 +78,32 @@ describe('ProjectTest', () => {
     expect(proj['devices'][1].id).toBe(130);
   });
 
+  it('check project remove device', () => {
+    let proj: Project = dummyProject0;
+    let devices: Array<Device> = [];
+    let device: Device = new Device({
+      "id": 129,
+      "slug": "d--0000-0000-0000-0081",
+      "gid": "0000-0000-0000-0081"
+    });
+    devices.push(device);
+    device = new Device({
+      "id": 130,
+      "slug": "d--0000-0000-0000-0082",
+      "gid": "0000-0000-0000-0082"
+    });
+    devices.push(device);
+    proj.addDevices(devices);
+    expect(proj['devices'].length).toBe(2);
+    expect(proj['devices'][0].id).toBe(129);
+    expect(proj['devices'][1].id).toBe(130);
+    expect(proj.hasDevice('d--0000-0000-0000-0082')).toBe(true)
+    proj.removeDevice('d--0000-0000-0000-0082');
+    expect(proj['devices'].length).toBe(1);
+    expect(proj['devices'][0].id).toBe(129);
+    expect(proj.hasDevice('d--0000-0000-0000-0082')).toBe(false)
+  });
+
   it('check project streams', () => {
     let proj: Project = dummyProject0;
     let streams: Array<Stream> = [];
