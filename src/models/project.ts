@@ -136,6 +136,13 @@ export class Project {
     });
   }
 
+  public removeDevice(slug: string): Device {
+    const device = this.deviceMap[slug];
+    delete this.deviceMap[slug];
+    this.devices = this.devices.filter(d => d.slug !== slug);
+    return device;
+  }
+
   public addStream(stream: Stream): void {
     this.streams.push(stream);
     this.streamMap[stream.slug] = stream;
