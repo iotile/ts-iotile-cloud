@@ -156,7 +156,13 @@ export class DeviceLocationDelta extends DeviceDelta {
   public check(device: Device) : DeltaStatus {
     if (device.lat === this.newLat && device.lon === this.newLng) {
       return DeltaStatus.Outdated;
-    } else if (device.lat === this.oldLat && device.lon === this.oldLng) {
+    } else if (
+      (device.lat === this.oldLat && device.lon === this.oldLng) ||
+      (isNaN(device.lat as number) &&
+        isNaN(this.oldLat) &&
+        isNaN(device.lon as number) &&
+        isNaN(this.oldLng))
+    ) {
       return DeltaStatus.Applies;
     } else {
       return DeltaStatus.Conflicted;
