@@ -70,7 +70,7 @@
     "node": ">=8.9"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "axios-mock-adapter": "^1.15.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.1"
